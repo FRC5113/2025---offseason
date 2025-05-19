@@ -1,0 +1,48 @@
+{
+ "name":"test-testl",
+ "version":1,
+ "snapshot":{
+  "waypoints":[
+    {"x":1.962148940439572, "y":1.6129, "heading":1.57, "intervals":13, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":1.8, "y":3.16, "heading":1.5707963267948966, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+  "constraints":[
+    {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":0.0, "y":0.0, "w":17.548, "h":8.052}}, "enabled":false}],
+  "targetDt":0.05
+ },
+ "params":{
+  "waypoints":[
+    {"x":{"exp":"teststart.x", "val":1.962148940439572}, "y":{"exp":"teststart.y", "val":1.6129}, "heading":{"exp":"teststart.heading", "val":1.57}, "intervals":13, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"testreefL.x", "val":1.8}, "y":{"exp":"testreefL.y", "val":3.16}, "heading":{"exp":"testreefL.heading", "val":1.5707963267948966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+  "constraints":[
+    {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":false}],
+  "targetDt":{
+   "exp":"0.05 s",
+   "val":0.05
+  }
+ },
+ "trajectory":{
+  "sampleType":"Differential",
+  "waypoints":[0.0,0.9349],
+  "samples":[
+    {"t":0.0, "x":1.96215, "y":1.6129, "heading":1.57, "vl":0.0, "vr":0.0, "omega":0.0, "al":1.18778, "ar":6.82103, "fl":8.00496, "fr":224.49011},
+    {"t":0.07192, "x":1.96203, "y":1.62646, "heading":1.58741, "vl":0.3199, "vr":0.52324, "omega":0.36389, "al":7.7088, "ar":7.73051, "fl":223.6838, "fr":224.51807},
+    {"t":0.14383, "x":1.96044, "y":1.67672, "heading":1.61366, "vl":0.87483, "vr":1.07924, "omega":0.3658, "al":7.7242, "ar":7.73229, "fl":224.19477, "fr":224.50556},
+    {"t":0.21575, "x":1.9553, "y":1.76682, "heading":1.64, "vl":1.43043, "vr":1.63531, "omega":0.36663, "al":7.72729, "ar":7.73205, "fl":224.30024, "fr":224.48319},
+    {"t":0.28766, "x":1.9445, "y":1.89659, "heading":1.66639, "vl":1.98617, "vr":2.19131, "omega":0.36712, "al":7.72792, "ar":7.73072, "fl":224.32762, "fr":224.43527},
+    {"t":0.35958, "x":1.92593, "y":2.06577, "heading":1.69279, "vl":2.54187, "vr":2.7471, "omega":0.36726, "al":7.72659, "ar":7.72599, "fl":224.3049, "fr":224.28193},
+    {"t":0.43149, "x":1.89798, "y":2.27241, "heading":1.71482, "vl":3.08083, "vr":3.18389, "omega":0.18444, "al":7.26196, "ar":4.42147, "fl":224.16421, "fr":115.00462},
+    {"t":0.50341, "x":1.86441, "y":2.50026, "heading":1.71492, "vl":3.1835, "vr":3.08183, "omega":-0.18195, "al":-4.40647, "ar":-7.25986, "fl":-114.50878, "fr":-224.16393},
+    {"t":0.57532, "x":1.83643, "y":2.70694, "heading":1.69303, "vl":2.74725, "vr":2.54295, "omega":-0.3656, "al":-7.72599, "ar":-7.72658, "fl":-224.282, "fr":-224.30479},
+    {"t":0.64724, "x":1.8178, "y":2.87616, "heading":1.66674, "vl":2.19146, "vr":1.98724, "omega":-0.36546, "al":-7.73072, "ar":-7.72792, "fl":-224.43531, "fr":-224.32753},
+    {"t":0.71915, "x":1.80694, "y":3.00597, "heading":1.64048, "vl":1.63546, "vr":1.43151, "omega":-0.36497, "al":-7.73205, "ar":-7.72729, "fl":-224.48321, "fr":-224.30014},
+    {"t":0.79107, "x":1.80175, "y":3.09611, "heading":1.61426, "vl":1.0794, "vr":0.87591, "omega":-0.36414, "al":-7.73229, "ar":-7.72419, "fl":-224.50558, "fr":-224.19467},
+    {"t":0.86298, "x":1.80013, "y":3.14641, "heading":1.58813, "vl":0.52339, "vr":0.32098, "omega":-0.36222, "al":-7.73051, "ar":-7.70882, "fl":-224.51808, "fr":-223.68447},
+    {"t":0.9349, "x":1.8, "y":3.16, "heading":1.5708, "vl":0.0, "vr":0.0, "omega":0.0, "al":0.0, "ar":0.0, "fl":-224.49013, "fr":-8.99634}],
+  "splits":[0]
+ },
+ "events":[]
+}
