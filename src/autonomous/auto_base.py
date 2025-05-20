@@ -14,8 +14,17 @@ from magicbot import feedback
 
 from lemonlib.util import AlertManager, is_red
 
+from components.drivetrain import Drivetrain
+from components.odometry import Odometry
+from components.arm import Arm, ArmAngle
+
 
 class AutoBase(AutonomousStateMachine):
+
+    arm: Arm
+    drivetrain: Drivetrain
+    odometry: Odometry
+    field: Field2d
 
     DISTANCE_TOLERANCE = 0.1  # metres
     ANGLE_TOLERANCE = math.radians(3)
@@ -45,7 +54,7 @@ class AutoBase(AutonomousStateMachine):
     def on_enable(self) -> None:
         starting_pose = self.get_starting_pose()
         if starting_pose is not None and RobotBase.isSimulation():
-            self.swerve_drive.set_starting_pose(starting_pose)
+            self.odometry.set_pose(starting_pose)
         self.current_step = -1
         self.trajectory_index = -1
 
@@ -66,13 +75,13 @@ class AutoBase(AutonomousStateMachine):
             return Pose2d()
 
     def display_trajectory(self) -> None:
-        self.estimated_field.getObject("trajectory").setPoses(
+        self.field.getObject("trajectory").setPoses(
             self._get_full_path_poses()
         )
 
     def on_disable(self) -> None:
         super().on_disable()
-        self.estimated_field.getObject("trajectory").setPoses([])
+        self.field.getObject("trajectory").setPoses([])
 
     @state(first=True)
     def next_step(self):
@@ -98,11 +107,11 @@ class AutoBase(AutonomousStateMachine):
     def tracking_trajectory(self, state_tm):
         """Follows the current trajectory and transitions when done."""
 
-        current_pose = self.swerve_drive.get_estimated_pose()
+        current_pose = self.odometry.get_pose()
         final_pose = self.current_trajectory.get_final_pose(is_red())
         distance = current_pose.translation().distance(final_pose.translation())
         angle_error = (final_pose.rotation() - current_pose.rotation()).radians()
-        velocity = self.swerve_drive.get_velocity()
+        velocity = self.drivetrain.get_velocity()
         speed = math.sqrt(math.pow(velocity.vx, 2.0) + math.pow(velocity.vy, 2.0))
         SmartDashboard.putString("Final Pose", f"{final_pose}")
 
@@ -118,7 +127,7 @@ class AutoBase(AutonomousStateMachine):
             self.next_state("next_step")
         sample = self.current_trajectory.sample_at(state_tm, is_red())
         if sample is not None:
-            self.drive_control.drive_auto(sample)
+            self.drivetrain.drive(sample)
 
             SmartDashboard.putNumber("Distance", distance)
 

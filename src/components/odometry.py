@@ -10,6 +10,7 @@ class Odometry:
     navx: AHRS
     left_encoder: SparkRelativeEncoder
     right_encoder: SparkRelativeEncoder
+    field: Field2d
 
     def setup(self):
         self.odometry = DifferentialDriveOdometry(
@@ -18,7 +19,12 @@ class Odometry:
             self.right_encoder.getPosition(),
             Pose2d(0, 0, Rotation2d()),
         )
-        self.field = Field2d()
+
+    def get_pose(self):
+        return self.odometry.getPose()
+    def set_pose(self, pose: Pose2d):
+        self.odometry.resetPose(pose)
+        self.field.setRobotPose(pose)
 
     def execute(self):
         self.odometry.update(

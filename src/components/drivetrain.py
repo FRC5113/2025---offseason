@@ -1,7 +1,7 @@
 from rev import SparkMax, SparkMaxConfig,SparkRelativeEncoder
 from wpilib.drive import DifferentialDrive
 from wpilib import SmartDashboard
-from wpimath.kinematics import DifferentialDriveKinematics
+from wpimath.kinematics import DifferentialDriveKinematics,DifferentialDriveWheelSpeeds
 from wpimath.kinematics import ChassisSpeeds
 from wpimath import units
 from lemonlib.smart import SmartProfile,SmartPreference
@@ -26,6 +26,7 @@ class Drivetrain:
 
     top_speed = SmartPreference(4.0)
     top_omega = SmartPreference(3.0)
+    wheel_speeds = DifferentialDriveWheelSpeeds(0, 0)
 
     def setup(self):
         self.rfMotor.configure(
@@ -112,15 +113,23 @@ class Drivetrain:
             SparkMax.PersistMode.kPersistParameters,
         )
 
-    def drive(self, vX: float, vY: float, omega: float):
+    def drive(self, vX: float,omega: float):
         self.chassis_speeds = ChassisSpeeds(
             vX,
-            vY,
+            0.0,
             omega
         )
         self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
 
-    def execute(self):
-        self.lfMotor.setVoltage()
+    def get_velocity(self):
+        return self.chassis_speeds
 
-        SmartDashboard.putData("DriveTrain", self.drivetrain)
+    def execute(self):
+        self.lfMotor.setVoltage(self.left_controller.calculate(
+            self.left_encoder.getVelocity() * self.velocity_factor, self.wheel_speeds.left
+        ))
+        self.rfMotor.setVoltage(self.right_controller.calculate(
+            self.right_encoder.getVelocity() * self.velocity_factor, self.wheel_speeds.right
+        ))
+
+        self.drivetrain.feed()

@@ -3,14 +3,15 @@ from lemonlib import LemonInput, LemonRobot
 import navx
 from phoenix6.hardware import TalonFX
 from phoenix5 import TalonSRX
-from wpilib import DutyCycleEncoder, DigitalInput
+from wpilib import DutyCycleEncoder, DigitalInput,Field2d,SmartDashboard
 from wpimath import units
 from lemonlib.smart import SmartProfile
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
 
-
+from lemonlib import fms_feedback
+from autonomous.auto_base import AutoBase
 
 
 class myRobot(LemonRobot):
@@ -90,6 +91,8 @@ class myRobot(LemonRobot):
         """
 
         self.navx = navx.AHRS.create_spi()
+        self.field = Field2d()
+        SmartDashboard.putData("Field", self.field)
 
     def teleopInit(self):
         self.primaryController = LemonInput(0)
@@ -106,3 +109,16 @@ class myRobot(LemonRobot):
         elif self.primaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.DOWN)
             self.arm.set_intake_speed(1)
+
+
+    def _display_auto_trajectory(self) -> None:
+        selected_auto = self._automodes.chooser.getSelected()
+        if isinstance(selected_auto, AutoBase):
+            selected_auto.display_trajectory()
+
+    @fms_feedback
+    def display_auto_state(self) -> None:
+        selected_auto = self._automodes.chooser.getSelected()
+        if isinstance(selected_auto, AutoBase):
+            return selected_auto.current_state
+        return "No Auto Selected"
