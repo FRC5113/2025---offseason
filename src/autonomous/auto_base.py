@@ -75,9 +75,7 @@ class AutoBase(AutonomousStateMachine):
             return Pose2d()
 
     def display_trajectory(self) -> None:
-        self.field.getObject("trajectory").setPoses(
-            self._get_full_path_poses()
-        )
+        self.field.getObject("trajectory").setPoses(self._get_full_path_poses())
 
     def on_disable(self) -> None:
         super().on_disable()
@@ -127,7 +125,7 @@ class AutoBase(AutonomousStateMachine):
             self.next_state("next_step")
         sample = self.current_trajectory.sample_at(state_tm, is_red())
         if sample is not None:
-            self.drivetrain.drive(sample)
+            self.drivetrain.drive_sample(sample)
 
             SmartDashboard.putNumber("Distance", distance)
 

@@ -2,7 +2,7 @@
   {
     "name": "/Preferences/top_speed",
     "type": "double",
-    "value": 4.0,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -10,7 +10,7 @@
   {
     "name": "/Preferences/top_omega",
     "type": "double",
-    "value": 3.0,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -90,7 +90,7 @@
   {
     "name": "/Preferences/left_kP",
     "type": "double",
-    "value": 0.15,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -138,7 +138,7 @@
   {
     "name": "/Preferences/right_kP",
     "type": "double",
-    "value": 0.15,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }

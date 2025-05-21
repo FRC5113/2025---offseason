@@ -8,6 +8,7 @@ from wpimath.controller import (
     SimpleMotorFeedforwardMeters,
     ElevatorFeedforward,
     ArmFeedforward,
+    
 )
 from .controller import SmartController
 from phoenix6.configs import Slot0Configs
@@ -113,6 +114,7 @@ class SmartProfile(Sendable):
                 self.gains["kMinInput"], self.gains["kMaxInput"]
             )
         return controller
+    
 
     def create_ctre_pid_controller(self) -> Slot0Configs:
         """Creates a CTRE PIDController. Use `create_pid_controller()`

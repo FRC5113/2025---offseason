@@ -1,48 +1,52 @@
-from rev import SparkMax
+from rev import SparkMax,SparkRelativeEncoder
 from lemonlib import LemonInput, LemonRobot
 import navx
 from phoenix6.hardware import TalonFX
 from phoenix5 import TalonSRX
-from wpilib import DutyCycleEncoder, DigitalInput,Field2d,SmartDashboard
-from wpimath import units
+from wpilib import DutyCycleEncoder, DigitalInput, Field2d, SmartDashboard
+from wpimath import units, applyDeadband
 from lemonlib.smart import SmartProfile
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
+from components.odometry import Odometry
 
 from lemonlib import fms_feedback
 from autonomous.auto_base import AutoBase
 
 
-class myRobot(LemonRobot):
+class MyRobot(LemonRobot):
     drivetrain: Drivetrain
     arm: Arm
+    odometry: Odometry
 
     def createObjects(self):
 
         """
         DRIVETRAIN
         """
-        self.rfMotor = SparkMax(11, SparkMax.MotorType.kBrushless)
-        self.lfMotor = SparkMax(12, SparkMax.MotorType.kBrushless)
-        self.rbMotor = SparkMax(13, SparkMax.MotorType.kBrushless)
-        self.lbMotor = SparkMax(14, SparkMax.MotorType.kBrushless)
+        self.right_front_motor = SparkMax(11, SparkMax.MotorType.kBrushless)
+        self.left_front_motor = SparkMax(12, SparkMax.MotorType.kBrushless)
+        self.right_back_motor = SparkMax(13, SparkMax.MotorType.kBrushless)
+        self.left_back_motor = SparkMax(14, SparkMax.MotorType.kBrushless)
 
-        self.left_encoder = self.lfMotor.getEncoder()
-        self.right_encoder = self.rfMotor.getEncoder()
+        self.left_drive_encoder = self.left_front_motor.getEncoder()
+        self.right_drive_encoder = self.right_front_motor.getEncoder()
+
+
 
         self.track_width: units.meters = 0.6
         self.gear_ratio = 8.45
-        self.wheel_diameter: units.meters = units.inchesToMeters(6.0)
-        
+        self.wheel_radius: units.meters = units.inchesToMeters(3.0)
+
         self.drivetrain_left_profile = SmartProfile(
             "left",
             {
-                "kP": 0.15,
+                "kP": 1.0,
                 "kI": 0.0,
                 "kD": 0.0,
-                "kS": 0.0,
-                "kV": 0.0,
+                "kS": 3.0,
+                "kV": 1.0,
                 "kA": 0.0,
             },
             not self.low_bandwidth,
@@ -50,11 +54,11 @@ class myRobot(LemonRobot):
         self.drivetrain_right_profile = SmartProfile(
             "right",
             {
-                "kP": 0.15,
+                "kP": 1.0,
                 "kI": 0.0,
                 "kD": 0.0,
-                "kS": 0.0,
-                "kV": 0.0,
+                "kS": 3.0,
+                "kV": 1.0,
                 "kA": 0.0,
             },
             not self.low_bandwidth,
@@ -67,8 +71,6 @@ class myRobot(LemonRobot):
         self.arm_motor = TalonFX(21)
         self.arm_intake_motor = TalonSRX(22)
         self.arm_encoder = DutyCycleEncoder(DigitalInput(1))
-
-        
 
         self.arm_profile = SmartProfile(
             "arm",
@@ -91,8 +93,12 @@ class myRobot(LemonRobot):
         """
 
         self.navx = navx.AHRS.create_spi()
+        SmartDashboard.putData("Navx", self.navx)
         self.field = Field2d()
         SmartDashboard.putData("Field", self.field)
+        self.mass = 100
+        self.moi = 1
+        
 
     def teleopInit(self):
         self.primaryController = LemonInput(0)
@@ -100,7 +106,8 @@ class myRobot(LemonRobot):
 
     def teleopPeriodic(self):
         self.drivetrain.drive(
-            self.primaryController.getLeftY(), self.primaryController.getRightX()
+            applyDeadband(self.primaryController.getLeftY(), 0.1),
+            applyDeadband(self.primaryController.getRightX(), 0.1),
         )
 
         if self.primaryController.getAButton():
@@ -110,6 +117,7 @@ class myRobot(LemonRobot):
             self.arm.set_target_angle(ArmAngle.DOWN)
             self.arm.set_intake_speed(1)
 
+        SmartDashboard.putData("controller", self.primaryController)
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()
