@@ -114,7 +114,7 @@
   {
     "name": "/Preferences/left_kS",
     "type": "double",
-    "value": 0.0,
+    "value": 3.0,
     "properties": {
       "persistent": true
     }
@@ -122,7 +122,7 @@
   {
     "name": "/Preferences/left_kV",
     "type": "double",
-    "value": 0.0,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -162,7 +162,7 @@
   {
     "name": "/Preferences/right_kS",
     "type": "double",
-    "value": 0.0,
+    "value": 3.0,
     "properties": {
       "persistent": true
     }
@@ -170,13 +170,61 @@
   {
     "name": "/Preferences/right_kV",
     "type": "double",
-    "value": 0.0,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
   },
   {
     "name": "/Preferences/right_kA",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/translation_kP",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/translation_kI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/translation_kD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/rotation_kP",
+    "type": "double",
+    "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/rotation_kI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/rotation_kD",
     "type": "double",
     "value": 0.0,
     "properties": {

@@ -15,7 +15,6 @@ from magicbot import feedback
 from lemonlib.util import AlertManager, is_red
 
 from components.drivetrain import Drivetrain
-from components.odometry import Odometry
 from components.arm import Arm, ArmAngle
 
 
@@ -23,7 +22,6 @@ class AutoBase(AutonomousStateMachine):
 
     arm: Arm
     drivetrain: Drivetrain
-    odometry: Odometry
     field: Field2d
 
     DISTANCE_TOLERANCE = 0.1  # metres
@@ -46,15 +44,15 @@ class AutoBase(AutonomousStateMachine):
             if not item.startswith("state:"):  # Only load actual trajectories
                 try:
                     self.trajectories.append(choreo.load_differential_trajectory(item))
-                    if self.starting_pose is None and RobotBase.isSimulation():
+                    if self.starting_pose is None:
                         self.starting_pose = self.get_starting_pose()
                 except ValueError:
                     pass  # Ignore missing trajectories
 
     def on_enable(self) -> None:
         starting_pose = self.get_starting_pose()
-        if starting_pose is not None and RobotBase.isSimulation():
-            self.odometry.set_pose(starting_pose)
+        if starting_pose is not None:
+            self.drivetrain.set_pose(starting_pose)
         self.current_step = -1
         self.trajectory_index = -1
 
@@ -105,7 +103,7 @@ class AutoBase(AutonomousStateMachine):
     def tracking_trajectory(self, state_tm):
         """Follows the current trajectory and transitions when done."""
 
-        current_pose = self.odometry.get_pose()
+        current_pose = self.drivetrain.get_pose()
         final_pose = self.current_trajectory.get_final_pose(is_red())
         distance = current_pose.translation().distance(final_pose.translation())
         angle_error = (final_pose.rotation() - current_pose.rotation()).radians()

@@ -44,9 +44,13 @@ class PhysicsEngine:
         self.physics_controller = physics_controller
 
         self.left_drive_motor_sim = SparkMaxSim(robot.left_front_motor, DCMotor.NEO(2))
-        self.right_drive_motor_sim = SparkMaxSim(robot.right_front_motor, DCMotor.NEO(2))
+        self.right_drive_motor_sim = SparkMaxSim(
+            robot.right_front_motor, DCMotor.NEO(2)
+        )
 
-        self.right_drive_encoder_sim = self.right_drive_motor_sim.getRelativeEncoderSim()
+        self.right_drive_encoder_sim = (
+            self.right_drive_motor_sim.getRelativeEncoderSim()
+        )
         self.left_drive_encoder_sim = self.left_drive_motor_sim.getRelativeEncoderSim()
 
         self.navx = robot.navx
@@ -67,14 +71,11 @@ class PhysicsEngine:
             self.right_drive_motor_sim.getSetpoint() * 12.0,
         )
 
-
         self.right_drive_encoder_sim.setPosition(self.drive_sim.getRightPosition())
         self.right_drive_encoder_sim.setVelocity(self.drive_sim.getRightVelocity())
 
         self.left_drive_encoder_sim.setPosition(self.drive_sim.getLeftPosition())
         self.left_drive_encoder_sim.setVelocity(self.drive_sim.getLeftVelocity())
-        print(self.drive_sim.getLeftVelocity(), self.drive_sim.getLeftPosition())
-        
 
         self.navx.setAngleAdjustment(-self.drive_sim.getHeading().degrees())
 
