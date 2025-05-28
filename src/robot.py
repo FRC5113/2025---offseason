@@ -5,12 +5,14 @@ from phoenix6.hardware import TalonFX
 from phoenix5 import TalonSRX
 from wpilib import DutyCycleEncoder, DigitalInput, Field2d, SmartDashboard
 from wpimath import units, applyDeadband
+from wpimath.geometry import Transform3d
 from lemonlib.smart import SmartProfile
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
 
-from lemonlib import fms_feedback
+from lemonlib import fms_feedback,LemonCamera
+from lemonlib.util import get_file
 from autonomous.auto_base import AutoBase
 
 
@@ -102,6 +104,15 @@ class MyRobot(LemonRobot):
             },
             not self.low_bandwidth,
         )
+
+
+        """
+        CAMERA
+        """
+        self.field_layout = get_file("2025_test_field.json")
+        self.robot_to_front_cam = Transform3d()
+        self.front_camera = LemonCamera("ThriftyCam",self.robot_to_front_cam,self.field_layout)
+        self.estimated_field = Field2d()
 
         """
         MISC

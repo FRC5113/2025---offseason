@@ -22,7 +22,7 @@ class AutoBase(AutonomousStateMachine):
 
     arm: Arm
     drivetrain: Drivetrain
-    field: Field2d
+    estimated_field: Field2d
 
     DISTANCE_TOLERANCE = 0.1  # metres
     ANGLE_TOLERANCE = math.radians(3)
@@ -73,11 +73,11 @@ class AutoBase(AutonomousStateMachine):
             return Pose2d()
 
     def display_trajectory(self) -> None:
-        self.field.getObject("trajectory").setPoses(self._get_full_path_poses())
+        self.estimated_field.getObject("trajectory").setPoses(self._get_full_path_poses())
 
     def on_disable(self) -> None:
         super().on_disable()
-        self.field.getObject("trajectory").setPoses([])
+        self.estimated_field.getObject("trajectory").setPoses([])
 
     @state(first=True)
     def next_step(self):

@@ -4,15 +4,16 @@ from wpilib import SmartDashboard
 from wpimath.kinematics import (
     DifferentialDriveKinematics,
     DifferentialDriveWheelSpeeds,
-    ChassisSpeeds,
-    DifferentialDriveOdometry,
+    ChassisSpeeds
 )
 from wpimath import units
 from lemonlib.smart import SmartProfile, SmartPreference
+from lemonlib import LemonCamera
 import math
 from choreo.trajectory import DifferentialSample
 from wpiutil import Sendable, SendableBuilder
 from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.estimator import DifferentialDrivePoseEstimator
 from wpilib import Field2d
 from navx import AHRS
 from magicbot import will_reset_to
@@ -25,6 +26,9 @@ class Drivetrain(Sendable):
     left_back_motor: SparkMax
     navx: AHRS
     field: Field2d
+    estimated_field:Field2d
+
+
 
     right_drive_encoder: SparkRelativeEncoder
     left_drive_encoder: SparkRelativeEncoder
@@ -99,7 +103,8 @@ class Drivetrain(Sendable):
 
         self.chassis_speeds = ChassisSpeeds()
 
-        self.odometry = DifferentialDriveOdometry(
+        self.odometry = DifferentialDrivePoseEstimator(
+            self.kinematics,
             self.navx.getRotation2d(),
             self.left_drive_encoder.getPosition(),
             self.right_drive_encoder.getPosition(),
@@ -173,12 +178,12 @@ class Drivetrain(Sendable):
         self.chassis_speeds = ChassisSpeeds(
             speeds.vx
             + self.translation_controller.calculate(
-                self.odometry.getPose().X(), sample.x
+                self.odometry.getEstimatedPosition().X(), sample.x
             ),
             0.0,
             speeds.omega
             + self.rotation_controller.calculate(
-                self.odometry.getPose().rotation().radians(), sample.heading
+                self.odometry.getEstimatedPosition().rotation().radians(), sample.heading
             ),
         )
         self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
@@ -190,11 +195,14 @@ class Drivetrain(Sendable):
         return self.chassis_speeds
 
     def get_pose(self):
-        return self.odometry.getPose()
+        return self.odometry.getEstimatedPosition()
 
     def set_pose(self, pose: Pose2d):
         self.odometry.resetPose(pose)
-        self.field.setRobotPose(pose)
+        self.estimated_field.setRobotPose(pose)
+
+    def add_vision_measurement(self,mesurement: Pose2d,timestamp: units.seconds):
+        self.odometry.addVisionMeasurement(mesurement,timestamp)
 
     def initSendable(self, builder: SendableBuilder) -> None:
         builder.setSmartDashboardType("DifferentialDrive")
@@ -229,20 +237,20 @@ class Drivetrain(Sendable):
         if self.stopped:
             self.left_voltage = 0
             self.right_voltage = 0
+            self.left_front_motor.stopMotor()
+            self.right_front_motor.stopMotor()
             return
+        else:
+            self.left_front_motor.setVoltage(
+                self.left_voltage
+            )
 
-        self.left_front_motor.setVoltage(
-            self.left_voltage
-        )
-
-        self.right_front_motor.setVoltage(
-            self.right_voltage
-        )
+            self.right_front_motor.setVoltage(
+                self.right_voltage
+            )
 
         self.odometry.update(
             self.navx.getRotation2d(),
             self.left_drive_encoder.getPosition(),
             self.right_drive_encoder.getPosition(),
         )
-        pose = self.odometry.getPose()
-        self.field.setRobotPose(pose)
