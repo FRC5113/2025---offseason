@@ -110,6 +110,28 @@ class MyRobot(LemonRobot):
         )
 
         """
+        CHUTE
+        """
+        self.chute_hinge_motor = TalonSRX(31)
+        self.chute_encoder = DutyCycleEncoder(DigitalInput(2))
+
+        self.chute_profile = SmartProfile(
+            "Chute",
+            {
+                "kP": 0.15,
+                "kI": 0.0,
+                "kD": 0.0,
+                "kS": 0.0,
+                "kV": 0.0,
+                "kA": 0.0,
+                "kG": 0.0,
+                "kMaxV": 150.0,
+                "kMaxA": 500.0,
+            },
+            not self.low_bandwidth,
+        )
+
+        """
         CAMERA
         """
         self.field_layout = AprilTagFieldLayout(get_file("2025_test_field.json"))
