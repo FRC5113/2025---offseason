@@ -4,7 +4,7 @@ from wpilib import SmartDashboard
 from wpimath.kinematics import (
     DifferentialDriveKinematics,
     DifferentialDriveWheelSpeeds,
-    ChassisSpeeds
+    ChassisSpeeds,
 )
 from wpimath import units
 from lemonlib.smart import SmartProfile, SmartPreference
@@ -26,9 +26,7 @@ class Drivetrain(Sendable):
     left_back_motor: SparkMax
     navx: AHRS
     field: Field2d
-    estimated_field:Field2d
-
-
+    estimated_field: Field2d
 
     right_drive_encoder: SparkRelativeEncoder
     left_drive_encoder: SparkRelativeEncoder
@@ -168,9 +166,11 @@ class Drivetrain(Sendable):
         self.stopped = True
 
     def drive(self, vY: float, omega: float):
-        self.chassis_speeds = ChassisSpeeds(vY, 0.0, omega)
+        self.chassis_speeds = ChassisSpeeds(
+            vY * self.top_speed, 0.0, omega * self.top_omega
+        )
         self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
-        self.wheel_speeds.desaturate(self.top_speed)
+
         self.stopped = False
 
     def drive_sample(self, sample: DifferentialSample):
@@ -183,11 +183,16 @@ class Drivetrain(Sendable):
             0.0,
             speeds.omega
             + self.rotation_controller.calculate(
-                self.odometry.getEstimatedPosition().rotation().radians(), sample.heading
+                (
+                    self.odometry.getEstimatedPosition().rotation().radians()
+                    + 2 * math.pi
+                )
+                % (2 * math.pi),
+                sample.heading,
             ),
         )
         self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
-        self.wheel_speeds.desaturate(self.top_speed)
+        # self.wheel_speeds.desaturate(self.top_speed)
         self.stopped = False
 
     def get_velocity(self):
@@ -201,8 +206,8 @@ class Drivetrain(Sendable):
         self.odometry.resetPose(pose)
         self.estimated_field.setRobotPose(pose)
 
-    def add_vision_measurement(self,mesurement: Pose2d,timestamp: units.seconds):
-        self.odometry.addVisionMeasurement(mesurement,timestamp)
+    def add_vision_measurement(self, mesurement: Pose2d, timestamp: units.seconds):
+        self.odometry.addVisionMeasurement(mesurement, timestamp)
 
     def initSendable(self, builder: SendableBuilder) -> None:
         builder.setSmartDashboardType("DifferentialDrive")
@@ -210,28 +215,34 @@ class Drivetrain(Sendable):
         builder.setSafeState(self.on_disable)
         builder.addDoubleProperty(
             "Left Motor Speed",
-            lambda: self.left_front_motor.get() * 12.0,
+            lambda: self.left_front_motor.get(),
             lambda speed: self.left_front_motor.set(speed),
         )
         builder.addDoubleProperty(
             "Right Motor Speed",
-            lambda: self.right_front_motor.get() * 12.0,
+            lambda: self.right_front_motor.get(),
             lambda speed: self.right_front_motor.set(speed),
         )
 
     def execute(self):
         self.left_voltage = self.left_controller.calculate(
-            self.left_drive_encoder.getVelocity()
-            / self.gear_ratio
-            * self.wheel_radius
-            * math.tau,
+            (
+                self.left_drive_encoder.getVelocity()
+                / self.gear_ratio
+                * self.wheel_radius
+                * math.tau
+            )
+            / 60,
             self.wheel_speeds.left,
         )
         self.right_voltage = self.right_controller.calculate(
-            self.right_drive_encoder.getVelocity()
-            / self.gear_ratio
-            * self.wheel_radius
-            * math.tau,
+            (
+                self.right_drive_encoder.getVelocity()
+                / self.gear_ratio
+                * self.wheel_radius
+                * math.tau
+            )
+            / 60,
             self.wheel_speeds.right,
         )
         if self.stopped:
@@ -241,13 +252,9 @@ class Drivetrain(Sendable):
             self.right_front_motor.stopMotor()
             return
         else:
-            self.left_front_motor.setVoltage(
-                self.left_voltage
-            )
+            self.left_front_motor.setVoltage(self.left_voltage)
 
-            self.right_front_motor.setVoltage(
-                self.right_voltage
-            )
+            self.right_front_motor.setVoltage(self.right_voltage)
 
         self.odometry.update(
             self.navx.getRotation2d(),

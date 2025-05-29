@@ -37,3 +37,7 @@ class Odometry:
             )
 
         self.estimated_field.setRobotPose(self.drivetrain.get_pose())
+        if self.front_camera.get_best_pose() is not None:
+            self.estimated_field.getObject("tag").setPose(
+                self.front_camera.get_best_pose(True)
+            )

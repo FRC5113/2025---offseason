@@ -10,15 +10,18 @@ from lemonlib.smart import SmartProfile
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
+from components.odometry import Odometry
 
-from lemonlib import fms_feedback,LemonCamera
+from lemonlib import fms_feedback, LemonCamera
 from lemonlib.util import get_file
 from autonomous.auto_base import AutoBase
+from robotpy_apriltag import AprilTagFieldLayout
 
 
 class MyRobot(LemonRobot):
     drivetrain: Drivetrain
     arm: Arm
+    odometry: Odometry
 
     def createObjects(self):
 
@@ -87,6 +90,7 @@ class MyRobot(LemonRobot):
 
         self.arm_motor = TalonFX(21)
         self.arm_intake_motor = TalonSRX(22)
+        self.arm_gear_ratio = 82.5
         self.arm_encoder = DutyCycleEncoder(DigitalInput(1))
 
         self.arm_profile = SmartProfile(
@@ -105,13 +109,14 @@ class MyRobot(LemonRobot):
             not self.low_bandwidth,
         )
 
-
         """
         CAMERA
         """
-        self.field_layout = get_file("2025_test_field.json")
+        self.field_layout = AprilTagFieldLayout(get_file("2025_test_field.json"))
         self.robot_to_front_cam = Transform3d()
-        self.front_camera = LemonCamera("ThriftyCam",self.robot_to_front_cam,self.field_layout)
+        self.front_camera = LemonCamera(
+            "ThriftyCam", self.robot_to_front_cam, self.field_layout
+        )
         self.estimated_field = Field2d()
 
         """
@@ -141,7 +146,6 @@ class MyRobot(LemonRobot):
         elif self.primaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.DOWN)
             self.arm.set_intake_speed(1)
-
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()

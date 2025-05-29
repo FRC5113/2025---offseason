@@ -24,6 +24,16 @@ from wpimath.system import LinearSystem_2_2_2
 from wpimath.system.plant import DCMotor, LinearSystemId
 from rev import SparkMaxSim, SparkRelativeEncoderSim, SparkMax, SparkAbsoluteEncoderSim
 import typing
+from wpilib import DriverStation, Mechanism2d, SmartDashboard, Color8Bit
+from wpilib.simulation import (
+    SingleJointedArmSim,
+    ElevatorSim,
+    DIOSim,
+    DutyCycleEncoderSim,
+)
+
+from lemonlib.simulation import LemonCameraSim
+from lemonlib.simulation import FalconSim
 
 if typing.TYPE_CHECKING:
     from robot import MyRobot
@@ -63,6 +73,38 @@ class PhysicsEngine:
             robot.wheel_radius,
             robot.track_width,
         )
+
+        # Claw Simulation
+        self.arm_gearbox = DCMotor.falcon500(1)
+        self.arm_sim = SingleJointedArmSim(
+            self.arm_gearbox,
+            robot.arm_gear_ratio,
+            0.1,  # gross estimate
+            0.2,  # estimate
+            -0.52,
+            1.57,
+            True,
+            1.57,
+            [0, 0],
+        )
+        self.arm_encoder_sim = DutyCycleEncoderSim(robot.arm_encoder)
+        self.arm_motor_sim = FalconSim(robot.arm_motor, 0.1, robot.arm_gear_ratio)
+
+        # Mechanism2d Visualization for Arm
+        self.arm_sim_vis = Mechanism2d(20, 50)
+        self.arm_root = self.arm_sim_vis.getRoot("Arm Root", 10, 0)
+        self.arm_ligament = self.arm_root.appendLigament(
+            "Arm", 10, 0, color=Color8Bit(0, 150, 0)
+        )
+
+        # Put Mechanism to SmartDashboard
+        SmartDashboard.putData("Arm Sim", self.arm_sim_vis)
+
+        self.vision_sim = LemonCameraSim(
+            robot.front_camera,
+            robot.field_layout,
+        )
+
         self.field = robot.field
 
     def update_sim(self, now: float, tm_diff: float) -> None:
@@ -80,5 +122,13 @@ class PhysicsEngine:
         self.navx.setAngleAdjustment(-self.drive_sim.getHeading().degrees())
 
         self.physics_controller.field.setRobotPose(self.drive_sim.getPose())
+
+        self.arm_sim.setInput(0, self.arm_motor_sim.getSetpoint())
+        self.arm_sim.update(tm_diff)
+        self.arm_encoder_sim.set(self.arm_sim.getAngleDegrees())
+
+        self.arm_ligament.setAngle(self.arm_sim.getAngleDegrees())
+
+        self.vision_sim.update(self.drive_sim.getPose())
 
         self.drive_sim.update(tm_diff)

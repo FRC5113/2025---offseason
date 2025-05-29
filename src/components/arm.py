@@ -9,7 +9,7 @@ from lemonlib.smart import SmartProfile
 from wpimath import units
 
 
-class ArmAngle(enum.Enum):
+class ArmAngle(enum.IntEnum):
     UP = 90
     DOWN = 0
     INTAKE = 45
@@ -50,14 +50,16 @@ class Arm:
         self.manual_control = True
 
     def execute(self):
-        if not self.manual_control:
-            self.arm_speed = self.controller.calculate(
-                self.encoder.get(), self.target_angle
-            )
-        if (
-            self.encoder.get() > ArmAngle.SAFEEND.value
-            or self.encoder.get() < ArmAngle.SAFEEND.value
-        ):
-            self.arm_speed = 0
+        self.arm_speed = self.controller.calculate(
+            self.encoder.get(), self.target_angle
+        )
+        print(
+            f"Arm Speed: {self.arm_speed}, Target Angle: {self.target_angle}, Encoder: {self.encoder.get()}"
+        )
+        # if (
+        #     self.encoder.get() > ArmAngle.SAFEEND.value
+        #     or self.encoder.get() < ArmAngle.SAFEEND.value
+        # ):
+        #     self.arm_speed = 0
         self.motor.set(self.arm_speed)
         self.intake_motor.set(TalonSRXControlMode.PercentOutput, self.intake_speed)

@@ -46,7 +46,7 @@ class AutoBase(AutonomousStateMachine):
                     self.trajectories.append(choreo.load_differential_trajectory(item))
                     if self.starting_pose is None:
                         self.starting_pose = self.get_starting_pose()
-                except ValueError:
+                except Exception:
                     pass  # Ignore missing trajectories
 
     def on_enable(self) -> None:
@@ -73,7 +73,9 @@ class AutoBase(AutonomousStateMachine):
             return Pose2d()
 
     def display_trajectory(self) -> None:
-        self.estimated_field.getObject("trajectory").setPoses(self._get_full_path_poses())
+        self.estimated_field.getObject("trajectory").setPoses(
+            self._get_full_path_poses()
+        )
 
     def on_disable(self) -> None:
         super().on_disable()
