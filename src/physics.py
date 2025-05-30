@@ -62,8 +62,7 @@ class PhysicsEngine:
             self.right_drive_motor_sim.getRelativeEncoderSim()
         )
         self.left_drive_encoder_sim = self.left_drive_motor_sim.getRelativeEncoderSim()
-
-        self.navx = robot.navx
+        self.robot = robot
 
         self.drive_sim = DifferentialDrivetrainSim(
             DCMotor.NEO(4),
@@ -119,7 +118,13 @@ class PhysicsEngine:
         self.left_drive_encoder_sim.setPosition(self.drive_sim.getLeftPosition())
         self.left_drive_encoder_sim.setVelocity(self.drive_sim.getLeftVelocity())
 
-        self.navx.setAngleAdjustment(-self.drive_sim.getHeading().degrees())
+        self.robot.navx.setAngleAdjustment(
+            -self.physics_controller.drive(
+                self.robot.drivetrain.chassis_speeds, tm_diff
+            )
+            .rotation()
+            .degrees()
+        )
 
         self.physics_controller.field.setRobotPose(self.drive_sim.getPose())
 

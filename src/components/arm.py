@@ -14,7 +14,7 @@ class ArmAngle(enum.IntEnum):
     DOWN = 0
     INTAKE = 45
     SAFESTART = -1
-    SAFEEND = 91
+    SAFEEND = 50
 
 
 class Arm:
@@ -52,9 +52,6 @@ class Arm:
     def execute(self):
         self.arm_speed = self.controller.calculate(
             self.encoder.get(), self.target_angle
-        )
-        print(
-            f"Arm Speed: {self.arm_speed}, Target Angle: {self.target_angle}, Encoder: {self.encoder.get()}"
         )
         # if (
         #     self.encoder.get() > ArmAngle.SAFEEND.value

@@ -8,7 +8,10 @@ from wpimath.controller import (
     SimpleMotorFeedforwardMeters,
     ElevatorFeedforward,
     ArmFeedforward,
+    LTVDifferentialDriveController,
 )
+from wpimath.units import meters, seconds
+from wpimath.system import LinearSystem_2_2_2
 from .controller import SmartController
 from phoenix6.configs import Slot0Configs
 from phoenix6 import signals
@@ -37,6 +40,9 @@ class SmartProfile(Sendable):
         kA: Acceleration Gain
         kMinInput: Minimum expected measurement value (used for continuous input)
         kMaxInput: Maximum expected measurement value (used for continuous input)
+
+        Q1, Q2, Q3, Q4, Q5: State weighting for LTV controllers
+        R1, R2: Input weighting for LTV controllers
 
         :param str profile_key: Prefix for associated NetworkTables keys
         :param dict[str, float] gains: Dictionary containing gain_key: value pairs
@@ -193,6 +199,28 @@ class SmartProfile(Sendable):
         )
         controller.enableContinuousInput(
             self.gains["kMinInput"], self.gains["kMaxInput"]
+        )
+        return controller
+
+    def create_wpi_ltv_differential_drive_controller(
+        self, plant: LinearSystem_2_2_2, trackwidth: meters, dt: seconds = 0.02
+    ) -> LTVDifferentialDriveController:
+        """Creates a wpilib LTVDifferentialDriveController.
+        Requires Qelems tuple(5 elements of SupportsFloat),
+        Relems tuple(2 elements of SupportsFloat)
+        """
+        controller = LTVDifferentialDriveController(
+            plant,
+            trackwidth,
+            (
+                self.gains["Q1"],
+                self.gains["Q2"],
+                self.gains["Q3"],
+                self.gains["Q4"],
+                self.gains["Q5"],
+            ),
+            (self.gains["R1"], self.gains["R2"]),
+            dt,
         )
         return controller
 

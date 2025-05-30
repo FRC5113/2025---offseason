@@ -6,6 +6,7 @@ from phoenix5 import TalonSRX
 from wpilib import DutyCycleEncoder, DigitalInput, Field2d, SmartDashboard
 from wpimath import units, applyDeadband
 from wpimath.geometry import Transform3d
+from wpimath.kinematics import ChassisSpeeds
 from lemonlib.smart import SmartProfile
 
 from components.drivetrain import Drivetrain
@@ -84,6 +85,11 @@ class MyRobot(LemonRobot):
             not self.low_bandwidth,
         )
 
+        self.kv_linear = 1.98  # Volts per (m/s)
+        self.ka_linear = 0.2  # Volts per (m/s^2)
+        self.kv_angular = 1.5  # Volts per (rad/s)
+        self.ka_angular = 0.3  # Volts per (rad/s^2)
+
         """
         ARM
         """
@@ -158,8 +164,11 @@ class MyRobot(LemonRobot):
 
     def teleopPeriodic(self):
         self.drivetrain.drive(
-            -applyDeadband(self.primaryController.getLeftY(), 0.1),
-            -applyDeadband(self.primaryController.getLeftX(), 0.1),
+            ChassisSpeeds(
+                -applyDeadband(self.primaryController.getLeftY(), 0.1),
+                0.0,
+                -applyDeadband(self.primaryController.getLeftX(), 0.1),
+            )
         )
 
         if self.primaryController.getAButton():
@@ -168,6 +177,10 @@ class MyRobot(LemonRobot):
         elif self.primaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.DOWN)
             self.arm.set_intake_speed(1)
+
+    def robotPeriodic(self):
+        super().robotPeriodic()
+        self.period = self.get_period()
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()

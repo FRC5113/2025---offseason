@@ -8,10 +8,12 @@ import enum
 from lemonlib.smart import SmartProfile
 from wpimath import units
 
+
 class ChuteAngle(enum.IntEnum):
     CLOSED = 90
     FLAT = 135
     OPEN = 180
+
 
 class Chute:
     hinge_motor: TalonSRX
@@ -20,8 +22,10 @@ class Chute:
 
     hinge_voltage = will_reset_to(0)
     requested_angle = will_reset_to(ChuteAngle.CLOSED)
+
     def setup(self):
         pass
+
     def on_enable(self):
         self.controller = self.profile.create_arm_controller("Chute")
 
@@ -32,9 +36,14 @@ class Chute:
         self.requested_angle = angle
 
     def execute(self):
-        self.hinge_voltage = self.controller.calculate(self.encoder.get(),self.requested_angle)
+        self.hinge_voltage = self.controller.calculate(
+            self.encoder.get(), self.requested_angle
+        )
 
-        if self.encoder.get() > ChuteAngle.OPEN or self.encoder.get() < ChuteAngle.CLOSED:
+        if (
+            self.encoder.get() > ChuteAngle.OPEN
+            or self.encoder.get() < ChuteAngle.CLOSED
+        ):
             self.hinge_voltage = 0
 
-        self.hinge_motor.set(TalonSRXControlMode.VoltageOutput, self.hinge_voltage)
+        self.hinge_motor.set(TalonSRXControlMode.PercentOutput, self.hinge_voltage)
