@@ -2,12 +2,12 @@ from rev import SparkMax, SparkRelativeEncoder
 from lemonlib import LemonInput, LemonRobot
 import navx
 from phoenix6.hardware import TalonFX
-from phoenix5 import TalonSRX
+from phoenix5 import TalonSRX,NeutralMode
 from wpilib import DutyCycleEncoder, DigitalInput, Field2d, SmartDashboard
 from wpimath import units, applyDeadband
 from wpimath.geometry import Transform3d
 from wpimath.kinematics import ChassisSpeeds
-from lemonlib.smart import SmartProfile
+from lemonlib.smart import SmartProfile,SmartPreference
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
@@ -23,6 +23,8 @@ class MyRobot(LemonRobot):
     drivetrain: Drivetrain
     arm: Arm
     odometry: Odometry
+
+    intake_speed = SmartPreference(1)
 
     def createObjects(self):
 
@@ -96,8 +98,9 @@ class MyRobot(LemonRobot):
 
         self.arm_motor = TalonFX(21)
         self.arm_intake_motor = TalonSRX(22)
-        self.arm_gear_ratio = 82.5
-        self.arm_encoder = DutyCycleEncoder(DigitalInput(1))
+        self.arm_intake_motor.setNeutralMode(NeutralMode.Brake)
+        self.arm_gear_ratio = 1
+        self.arm_encoder = self.right_front_motor.getAbsoluteEncoder()
 
         self.arm_profile = SmartProfile(
             "arm",
@@ -159,28 +162,23 @@ class MyRobot(LemonRobot):
         self.moi = 6.41
 
     def teleopInit(self):
-        self.primaryController = LemonInput(0)
+        self.primaryController = LemonInput(0,"PS5")
         self.secondaryController = LemonInput(1)
 
     def teleopPeriodic(self):
         self.drivetrain.drive(
-            ChassisSpeeds(
                 -applyDeadband(self.primaryController.getLeftY(), 0.1),
-                0.0,
                 -applyDeadband(self.primaryController.getLeftX(), 0.1),
-            )
+            
         )
 
         if self.primaryController.getAButton():
             self.arm.set_target_angle(ArmAngle.UP)
-            self.arm.set_intake_speed(-1)
+            self.arm.set_intake_speed(-1 * self.intake_speed)
         elif self.primaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.DOWN)
-            self.arm.set_intake_speed(1)
+            self.arm.set_intake_speed(1 * self.intake_speed)
 
-    def robotPeriodic(self):
-        super().robotPeriodic()
-        self.period = self.get_period()
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()

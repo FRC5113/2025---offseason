@@ -3,15 +3,15 @@ from phoenix5 import TalonSRX, TalonSRXControlMode
 from phoenix6.configs import TalonFXConfiguration
 from phoenix6.signals import NeutralModeValue
 from magicbot import will_reset_to
-from wpilib import DutyCycleEncoder
+from rev import SparkAbsoluteEncoder
 import enum
 from lemonlib.smart import SmartProfile
 from wpimath import units
 
 
 class ArmAngle(enum.IntEnum):
-    UP = 90
-    DOWN = 0
+    UP = 0
+    DOWN = 63
     INTAKE = 45
     SAFESTART = -1
     SAFEEND = 50
@@ -19,7 +19,7 @@ class ArmAngle(enum.IntEnum):
 
 class Arm:
     motor: TalonFX
-    encoder: DutyCycleEncoder
+    encoder: SparkAbsoluteEncoder
     intake_motor: TalonSRX
     profile: SmartProfile
 
@@ -51,7 +51,7 @@ class Arm:
 
     def execute(self):
         self.arm_speed = self.controller.calculate(
-            self.encoder.get(), self.target_angle
+            self.encoder.getPosition() * 360, self.target_angle
         )
         # if (
         #     self.encoder.get() > ArmAngle.SAFEEND.value
