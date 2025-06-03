@@ -16,73 +16,9 @@
     }
   },
   {
-    "name": "/Preferences/arm_kP",
+    "name": "/Preferences/intake_speed",
     "type": "double",
-    "value": 0.15,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kI",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kD",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kS",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kV",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kA",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kG",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kMaxV",
-    "type": "double",
-    "value": 150.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/arm_kMaxA",
-    "type": "double",
-    "value": 500.0,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -186,7 +122,7 @@
   {
     "name": "/Preferences/translation_kP",
     "type": "double",
-    "value": 0.1,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -210,7 +146,7 @@
   {
     "name": "/Preferences/rotation_kP",
     "type": "double",
-    "value": 0.01,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -232,7 +168,15 @@
     }
   },
   {
-    "name": "/Preferences/rotation_kS",
+    "name": "/Preferences/arm_kP",
+    "type": "double",
+    "value": 0.15,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kI",
     "type": "double",
     "value": 0.0,
     "properties": {
@@ -240,9 +184,57 @@
     }
   },
   {
-    "name": "/Preferences/rotation_kV",
+    "name": "/Preferences/arm_kD",
     "type": "double",
     "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kS",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kV",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kA",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kG",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kMaxV",
+    "type": "double",
+    "value": 150.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/arm_kMaxA",
+    "type": "double",
+    "value": 500.0,
     "properties": {
       "persistent": true
     }
@@ -315,78 +307,6 @@
     "name": "/Preferences/Chute_kMaxA",
     "type": "double",
     "value": 500.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/rotation_kMaxV",
-    "type": "double",
-    "value": 3.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/rotation_kMaxA",
-    "type": "double",
-    "value": 1.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_Q1",
-    "type": "double",
-    "value": 0.02,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_Q2",
-    "type": "double",
-    "value": 0.4,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_Q3",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_Q4",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_Q5",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_R1",
-    "type": "double",
-    "value": 12.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/drivetrain_R2",
-    "type": "double",
-    "value": 0.0,
     "properties": {
       "persistent": true
     }

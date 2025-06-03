@@ -16,8 +16,10 @@ from .controller import SmartController
 from phoenix6.configs import Slot0Configs
 from phoenix6 import signals
 
+from .nettables import SmartNT
 
-class SmartProfile(Sendable):
+
+class SmartProfile:
     """Used to store multiple gains and configuration values for several
     different types of controllers. This can optionally interface with
     NetworkTables so that the gains may be dynamically updated without
@@ -50,8 +52,9 @@ class SmartProfile(Sendable):
             data from NetworkTables. If true, values from NetworkTables
             are given precedence over values set in code.
         """
-        Sendable.__init__(self)
+        
         self.profile_key = profile_key
+        self.nt = SmartNT(f"SmartProfile/{profile_key}")
         self.tuning_enabled = tuning_enabled
         self.gains = gains
         if tuning_enabled:
@@ -60,12 +63,12 @@ class SmartProfile(Sendable):
                 self.gains[gain] = Preferences.getDouble(
                     f"{profile_key}_{gain}", gains[gain]
                 )
-            SmartDashboard.putData(f"{profile_key}_profile", self)
+            self.initSendable()
 
-    def initSendable(self, builder: SendableBuilder):
-        builder.setSmartDashboardType("SmartProfile")
+    def initSendable(self):
+        self.nt.start()
         for gain_key in self.gains:
-            builder.addDoubleProperty(
+            self.nt.add_double_property(
                 gain_key,
                 # optional arguments used to hackily avoid late binding
                 (lambda key=gain_key: self.gains[key]),

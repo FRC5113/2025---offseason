@@ -86,7 +86,7 @@ class PhysicsEngine:
             1.57,
             [0, 0],
         )
-        self.arm_encoder_sim = DutyCycleEncoderSim(robot.arm_encoder)
+        self.arm_encoder_sim = SparkAbsoluteEncoderSim(robot.right_front_motor)
         self.arm_motor_sim = FalconSim(robot.arm_motor, 0.1, robot.arm_gear_ratio)
 
         # Mechanism2d Visualization for Arm
@@ -130,7 +130,7 @@ class PhysicsEngine:
 
         self.arm_sim.setInput(0, self.arm_motor_sim.getSetpoint())
         self.arm_sim.update(tm_diff)
-        self.arm_encoder_sim.set(self.arm_sim.getAngleDegrees())
+        self.arm_encoder_sim.setPosition(self.arm_sim.getAngleDegrees())
 
         self.arm_ligament.setAngle(self.arm_sim.getAngleDegrees())
 

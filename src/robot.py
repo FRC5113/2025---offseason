@@ -12,6 +12,7 @@ from lemonlib.smart import SmartProfile,SmartPreference
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
 from components.odometry import Odometry
+from components.chute import Chute
 
 from lemonlib import fms_feedback, LemonCamera
 from lemonlib.util import get_file
@@ -23,6 +24,7 @@ class MyRobot(LemonRobot):
     drivetrain: Drivetrain
     arm: Arm
     odometry: Odometry
+    chute: Chute
 
     intake_speed = SmartPreference(1)
 
@@ -48,7 +50,7 @@ class MyRobot(LemonRobot):
             {
                 "kP": 1.0,
                 "kI": 0.0,
-                "kD": 0.0,
+                "kD": 1.0,
                 "kS": 3.0,
                 "kV": 1.0,
                 "kA": 0.0,
@@ -60,7 +62,7 @@ class MyRobot(LemonRobot):
             {
                 "kP": 1.0,
                 "kI": 0.0,
-                "kD": 0.0,
+                "kD": 1.0,
                 "kS": 3.0,
                 "kV": 1.0,
                 "kA": 0.0,
@@ -167,9 +169,8 @@ class MyRobot(LemonRobot):
 
     def teleopPeriodic(self):
         self.drivetrain.drive(
-                -applyDeadband(self.primaryController.getLeftY(), 0.1),
-                -applyDeadband(self.primaryController.getLeftX(), 0.1),
-            
+                applyDeadband(self.primaryController.getLeftY(), 0.1),
+                applyDeadband(self.primaryController.getRightX(), 0.1),
         )
 
         if self.primaryController.getAButton():

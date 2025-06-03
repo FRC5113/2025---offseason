@@ -4,6 +4,8 @@ from wpilib import DriverStation
 from wpilib import SmartDashboard
 from robotpy_ext.autonomous import AutonomousModeSelector
 from .commandcomponent import LemonComponent
+from lemonlib.util import AlertManager, AlertType
+from lemonlib.smart import SmartNT
 
 
 class LemonRobot(magicbot.MagicRobot):
@@ -14,12 +16,14 @@ class LemonRobot(magicbot.MagicRobot):
     """
 
     low_bandwidth = DriverStation.isFMSAttached()
+    
     commandscheduler = commands2.CommandScheduler.getInstance()
 
     def __init__(self):
         super().__init__()
 
         self.loop_time = self.control_loop_wait_time
+        SmartDashboard.putData("CommandScheduler", self.commandscheduler)
 
     def autonomousPeriodic(self):
         """
@@ -71,9 +75,8 @@ class LemonRobot(magicbot.MagicRobot):
                 except Exception:
                     self.onException()
             watchdog.addEpoch(name)
-        SmartDashboard.putData("CommandScheduler", self.commandscheduler)
-        if DriverStation.isEnabled():
-            self.enabledperiodic()
+        
+        self.enabledperiodic()
 
         self._do_periodics()
 
@@ -82,6 +85,7 @@ class LemonRobot(magicbot.MagicRobot):
 
     def _do_periodics(self):
         super()._do_periodics()
+
 
         self.loop_time = max(self.control_loop_wait_time, self.watchdog.getTime())
 
