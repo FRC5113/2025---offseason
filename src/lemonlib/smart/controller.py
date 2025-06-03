@@ -24,11 +24,10 @@ class SmartController:
 
     def initSendable(self):
 
-        self.nt.put("Reference", self.reference )
-        self.nt.put("Measurement", self.measurement )
-        self.nt.put("Error", self.error )
+        self.nt.put("Reference", self.reference)
+        self.nt.put("Measurement", self.measurement)
+        self.nt.put("Error", self.error)
         self.nt.put("Output", self.output)
-
 
     def calculate(self, measurement: float, reference: float):
         self.reference = reference

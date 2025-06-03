@@ -2,12 +2,12 @@ from rev import SparkMax, SparkRelativeEncoder
 from lemonlib import LemonInput, LemonRobot
 import navx
 from phoenix6.hardware import TalonFX
-from phoenix5 import TalonSRX,NeutralMode
+from phoenix5 import TalonSRX, NeutralMode
 from wpilib import DutyCycleEncoder, DigitalInput, Field2d, SmartDashboard
 from wpimath import units, applyDeadband
 from wpimath.geometry import Transform3d
 from wpimath.kinematics import ChassisSpeeds
-from lemonlib.smart import SmartProfile,SmartPreference
+from lemonlib.smart import SmartProfile, SmartPreference
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
@@ -164,13 +164,13 @@ class MyRobot(LemonRobot):
         self.moi = 6.41
 
     def teleopInit(self):
-        self.primaryController = LemonInput(0,"PS5")
+        self.primaryController = LemonInput(0, "PS5")
         self.secondaryController = LemonInput(1)
 
     def teleopPeriodic(self):
         self.drivetrain.drive(
-                applyDeadband(self.primaryController.getLeftY(), 0.1),
-                applyDeadband(self.primaryController.getRightX(), 0.1),
+            applyDeadband(self.primaryController.getLeftY(), 0.1),
+            applyDeadband(self.primaryController.getRightX(), 0.1),
         )
 
         if self.primaryController.getAButton():
@@ -179,7 +179,6 @@ class MyRobot(LemonRobot):
         elif self.primaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.DOWN)
             self.arm.set_intake_speed(1 * self.intake_speed)
-
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()

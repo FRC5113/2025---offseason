@@ -16,7 +16,7 @@ class LemonRobot(magicbot.MagicRobot):
     """
 
     low_bandwidth = DriverStation.isFMSAttached()
-    
+
     commandscheduler = commands2.CommandScheduler.getInstance()
 
     def __init__(self):
@@ -75,7 +75,7 @@ class LemonRobot(magicbot.MagicRobot):
                 except Exception:
                     self.onException()
             watchdog.addEpoch(name)
-        
+
         self.enabledperiodic()
 
         self._do_periodics()
@@ -85,7 +85,6 @@ class LemonRobot(magicbot.MagicRobot):
 
     def _do_periodics(self):
         super()._do_periodics()
-
 
         self.loop_time = max(self.control_loop_wait_time, self.watchdog.getTime())
 

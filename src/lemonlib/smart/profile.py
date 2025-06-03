@@ -52,7 +52,7 @@ class SmartProfile:
             data from NetworkTables. If true, values from NetworkTables
             are given precedence over values set in code.
         """
-        
+
         self.profile_key = profile_key
         self.nt = SmartNT(f"SmartProfile/{profile_key}")
         self.tuning_enabled = tuning_enabled

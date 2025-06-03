@@ -5,7 +5,9 @@ from ntcore import NetworkTableInstance, NetworkTableEntry
 
 
 class SmartNT:
-    def __init__(self, root_table: str = "/", verbose: bool = False, poll_period: float = 0.02):
+    def __init__(
+        self, root_table: str = "/", verbose: bool = False, poll_period: float = 0.02
+    ):
         self.nt = NetworkTableInstance.getDefault()
         self.table = self.nt.getTable(root_table.strip("/"))
         self._entries: Dict[str, NetworkTableEntry] = {}
@@ -50,17 +52,25 @@ class SmartNT:
         elif isinstance(default, str):
             return entry.getString(default)
         else:
-            raise TypeError(f"Unsupported default type for key '{key}': {type(default)}")
+            raise TypeError(
+                f"Unsupported default type for key '{key}': {type(default)}"
+            )
 
-    def add_double_property(self, key: str, getter: Callable[[], float], setter: Callable[[float], None]):
+    def add_double_property(
+        self, key: str, getter: Callable[[], float], setter: Callable[[float], None]
+    ):
         self._properties[key] = {"getter": getter, "setter": setter, "type": "double"}
         self._get_entry(key)
 
-    def add_boolean_property(self, key: str, getter: Callable[[], bool], setter: Callable[[bool], None]):
+    def add_boolean_property(
+        self, key: str, getter: Callable[[], bool], setter: Callable[[bool], None]
+    ):
         self._properties[key] = {"getter": getter, "setter": setter, "type": "boolean"}
         self._get_entry(key)
 
-    def add_string_property(self, key: str, getter: Callable[[], str], setter: Callable[[str], None]):
+    def add_string_property(
+        self, key: str, getter: Callable[[], str], setter: Callable[[str], None]
+    ):
         self._properties[key] = {"getter": getter, "setter": setter, "type": "string"}
         self._get_entry(key)
 
