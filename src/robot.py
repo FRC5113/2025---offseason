@@ -29,7 +29,6 @@ class MyRobot(LemonRobot):
     intake_speed = SmartPreference(1)
 
     def createObjects(self):
-
         """
         DRIVETRAIN
         """
