@@ -122,24 +122,7 @@ class MyRobot(LemonRobot):
         """
         CHUTE
         """
-        self.chute_hinge_motor = TalonSRX(31)
-        self.chute_encoder = DutyCycleEncoder(DigitalInput(2))
-
-        self.chute_profile = SmartProfile(
-            "Chute",
-            {
-                "kP": 0.15,
-                "kI": 0.0,
-                "kD": 0.0,
-                "kS": 0.0,
-                "kV": 0.0,
-                "kA": 0.0,
-                "kG": 0.0,
-                "kMaxV": 150.0,
-                "kMaxA": 500.0,
-            },
-            not self.low_bandwidth,
-        )
+        self.hinge_motor = TalonSRX(31)
 
         """
         CAMERA
@@ -163,7 +146,7 @@ class MyRobot(LemonRobot):
         self.moi = 6.41
 
     def teleopInit(self):
-        self.primaryController = LemonInput(0, "PS5")
+        self.primaryController = LemonInput(0)
         self.secondaryController = LemonInput(1)
 
     def teleopPeriodic(self):
@@ -172,12 +155,19 @@ class MyRobot(LemonRobot):
             applyDeadband(self.primaryController.getRightX(), 0.1),
         )
 
-        if self.primaryController.getAButton():
+        if self.secondaryController.getAButton():
             self.arm.set_target_angle(ArmAngle.UP)
             self.arm.set_intake_speed(-1 * self.intake_speed)
-        elif self.primaryController.getBButton():
+        elif self.secondaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.DOWN)
             self.arm.set_intake_speed(1 * self.intake_speed)
+        
+        if self.secondaryController.getLeftTriggerAxis() > 0.1:
+            self.chute.request_speed(self.secondaryController.getLeftTriggerAxis())
+        if self.secondaryController.getRightTriggerAxis() > 0.1:
+            self.chute.request_speed(-self.secondaryController.getRightTriggerAxis())
+
+
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()

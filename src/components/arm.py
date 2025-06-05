@@ -6,15 +6,14 @@ from magicbot import will_reset_to
 from rev import SparkAbsoluteEncoder
 import enum
 from lemonlib.smart import SmartProfile
+from lemonlib import fms_feedback
 from wpimath import units
 
 
 class ArmAngle(enum.IntEnum):
     UP = 0
-    DOWN = 63
-    INTAKE = 45
-    SAFESTART = -1
-    SAFEEND = 50
+    DOWN = 40
+    INTAKE = 35
 
 
 class Arm:
@@ -36,8 +35,19 @@ class Arm:
     def on_enable(self):
         self.controller = self.profile.create_arm_controller("arm")
 
+    @fms_feedback
+    def get_angle(self) -> units.degrees:
+        """Return the angle of the hinge normalized to [-180,180].
+        An angle of 0 refers to the claw in the up/stowed position.
+        """
+        angle = self.encoder.getPosition() * 360
+        if angle > 180:
+            angle -= 360
+        return angle
+
     """
-    CONTROL METHODS"""
+    CONTROL METHODS
+    """
 
     def set_intake_speed(self, intake_speed):
         self.intake_speed = intake_speed
