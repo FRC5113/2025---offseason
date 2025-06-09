@@ -61,7 +61,7 @@ class Arm:
 
     def execute(self):
         self.arm_speed = self.controller.calculate(
-            self.encoder.getPosition() * 360, self.target_angle
+            self.get_angle(), self.target_angle
         )
         # if (
         #     self.encoder.get() > ArmAngle.SAFEEND.value
