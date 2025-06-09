@@ -23,4 +23,4 @@ class Chute:
         self.voltage = speed
 
     def execute(self):
-        self.motor.set(TalonSRXControlMode.PercentOutput, self.voltage)
+        self.motor.set(TalonSRXControlMode.PercentOutput, self.voltage * self.chute_sped)

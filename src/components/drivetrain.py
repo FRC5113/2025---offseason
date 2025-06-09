@@ -231,8 +231,7 @@ class Drivetrain(Sendable):
                 / self.gear_ratio
                 * self.wheel_radius
                 * math.tau
-            )
-            / 60,
+            ),
             self.wheel_speeds.left,
         )
         self.right_voltage = self.right_controller.calculate(
@@ -241,8 +240,7 @@ class Drivetrain(Sendable):
                 / self.gear_ratio
                 * self.wheel_radius
                 * math.tau
-            )
-            / 60,
+            ),
             self.wheel_speeds.right,
         )
         if self.stopped:
