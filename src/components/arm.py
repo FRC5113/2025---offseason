@@ -12,8 +12,8 @@ from wpimath import units
 
 class ArmAngle(enum.IntEnum):
     UP = 0
-    DOWN = 40
-    INTAKE = 35
+    DOWN = 48
+    INTAKE = 45
 
 
 class Arm:
@@ -24,7 +24,7 @@ class Arm:
 
     intake_speed = will_reset_to(0)
     arm_speed = will_reset_to(0)
-    target_angle = will_reset_to(90)
+    target_angle = will_reset_to(ArmAngle.UP.value)
     manual_control = will_reset_to(False)
 
     def setup(self):
@@ -63,10 +63,9 @@ class Arm:
         self.arm_speed = self.controller.calculate(
             self.get_angle(), self.target_angle
         )
-        # if (
-        #     self.encoder.get() > ArmAngle.SAFEEND.value
-        #     or self.encoder.get() < ArmAngle.SAFEEND.value
-        # ):
-        #     self.arm_speed = 0
+        if (
+            self.get_angle() > ArmAngle.DOWN.value
+        ):
+            self.arm_speed = 0
         self.motor.set(self.arm_speed)
         self.intake_motor.set(TalonSRXControlMode.PercentOutput, self.intake_speed)

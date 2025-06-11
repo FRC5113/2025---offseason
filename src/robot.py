@@ -100,7 +100,7 @@ class MyRobot(LemonRobot):
         self.arm_motor = TalonFX(21)
         self.arm_intake_motor = TalonSRX(22)
         self.arm_intake_motor.setNeutralMode(NeutralMode.Brake)
-        self.arm_gear_ratio = 1
+        self.arm_gear_ratio = 73
         self.arm_encoder = self.right_front_motor.getAbsoluteEncoder()
 
         self.arm_profile = SmartProfile(
@@ -122,7 +122,7 @@ class MyRobot(LemonRobot):
         """
         CHUTE
         """
-        self.hinge_motor = TalonSRX(31)
+        self.chute_motor = TalonSRX(31)
 
         """
         CAMERA
@@ -159,7 +159,7 @@ class MyRobot(LemonRobot):
             self.arm.set_target_angle(ArmAngle.UP)
             self.arm.set_intake_speed(-1 * self.intake_speed)
         elif self.secondaryController.getBButton():
-            self.arm.set_target_angle(ArmAngle.DOWN)
+            self.arm.set_target_angle(ArmAngle.INTAKE)
             self.arm.set_intake_speed(1 * self.intake_speed)
         
         if self.secondaryController.getLeftTriggerAxis() > 0.1:

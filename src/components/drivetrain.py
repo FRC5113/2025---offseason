@@ -112,26 +112,26 @@ class Drivetrain(Sendable):
         SmartDashboard.putData("Drivetrain", self)
 
     def on_enable(self):
-        self.right_back_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
-        self.left_back_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
-        self.left_front_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
-        self.right_front_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
+        # self.right_back_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
+        # self.left_back_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
+        # self.left_front_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
+        # self.right_front_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
         self.right_controller = self.right_profile.create_flywheel_controller("Right")
         self.left_controller = self.left_profile.create_flywheel_controller("Left")
 
@@ -143,26 +143,26 @@ class Drivetrain(Sendable):
         )
 
     def on_disable(self):
-        self.right_back_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
-        self.left_back_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
-        self.left_front_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
-        self.right_front_motor.configure(
-            SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-            SparkMax.ResetMode.kResetSafeParameters,
-            SparkMax.PersistMode.kPersistParameters,
-        )
+        # self.right_back_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
+        # self.left_back_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
+        # self.left_front_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
+        # self.right_front_motor.configure(
+        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
+        #     SparkMax.ResetMode.kResetSafeParameters,
+        #     SparkMax.PersistMode.kPersistParameters,
+        # )
         self.stopped = True
 
     def drive(self, vY: float, omega: float):
