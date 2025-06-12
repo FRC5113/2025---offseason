@@ -103,6 +103,8 @@ class MyRobot(LemonRobot):
         self.arm_gear_ratio = 73
         self.arm_encoder = self.right_front_motor.getAbsoluteEncoder()
 
+        self.arm_tolerance = 3.0
+
         self.arm_profile = SmartProfile(
             "arm",
             {
@@ -161,13 +163,11 @@ class MyRobot(LemonRobot):
         elif self.secondaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.INTAKE)
             self.arm.set_intake_speed(1 * self.intake_speed)
-        
+
         if self.secondaryController.getLeftTriggerAxis() > 0.1:
             self.chute.request_speed(self.secondaryController.getLeftTriggerAxis())
         if self.secondaryController.getRightTriggerAxis() > 0.1:
             self.chute.request_speed(-self.secondaryController.getRightTriggerAxis())
-
-
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()
