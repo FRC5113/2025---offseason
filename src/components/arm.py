@@ -12,9 +12,10 @@ from wpimath import units
 
 
 class ArmAngle(enum.IntEnum):
-    UP = 0
-    DOWN = 48
+    UP = 90
+    DOWN = 42
     INTAKE = 45
+    SAFEEND = 40
 
 
 class Arm:
@@ -49,7 +50,7 @@ class Arm:
         angle = self.encoder.getPosition() * 360
         if angle > 180:
             angle -= 360
-        return angle
+        return 90 - angle
 
     def at_point(self, angle):
         if abs(self.get_angle - angle) < self.tolerance:
@@ -93,10 +94,10 @@ class Arm:
     def execute(self):
         if not self.manual_control:
             self.arm_speed = self.controller.calculate(self.get_angle(), self.target_angle)
-        if self.get_angle() > ArmAngle.SAFEEND.value:
+        if self.get_angle() < ArmAngle.SAFEEND.value:
             self.arm_speed = 0
-            AlertManager.instant_alert(
-                f"Arm has gone passed limit by {abs(self.get_angle() - ArmAngle.SAFEEND.value)}"
-            )
-        self.motor.set(self.arm_speed)
+            # AlertManager.instant_alert(
+            #     f"Arm has gone passed limit by {abs(self.get_angle() - ArmAngle.DOWN.value)}",AlertType.WARNING
+            # )
+        self.motor.setVoltage(self.arm_speed)
         self.intake_motor.set(TalonSRXControlMode.PercentOutput, self.intake_speed)

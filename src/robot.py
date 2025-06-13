@@ -157,12 +157,14 @@ class MyRobot(LemonRobot):
             applyDeadband(self.primaryController.getRightX(), 0.1),
         )
 
+        # if self.secondaryController.getBButton():
+        #     self.arm.set_arm_speed(5)
         if self.secondaryController.getAButton():
             self.arm.set_target_angle(ArmAngle.UP)
-            self.arm.set_intake_speed(-1 * self.intake_speed)
+            self.arm.set_intake_speed(1 * self.intake_speed)
         elif self.secondaryController.getBButton():
             self.arm.set_target_angle(ArmAngle.INTAKE)
-            self.arm.set_intake_speed(1 * self.intake_speed)
+            self.arm.set_intake_speed(-1 * self.intake_speed)
 
         if self.secondaryController.getLeftTriggerAxis() > 0.1:
             self.chute.request_speed(self.secondaryController.getLeftTriggerAxis())
