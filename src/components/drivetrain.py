@@ -41,8 +41,9 @@ class Drivetrain(Sendable):
     translation_profile: SmartProfile
     rotation_profile: SmartProfile
 
-    top_speed = SmartPreference(4.0)
-    top_omega = SmartPreference(3.0)
+
+    omega_mult = SmartPreference(1.0)
+    speed_mult = SmartPreference(1.0)
     wheel_speeds = DifferentialDriveWheelSpeeds(0, 0)
 
     left_voltage = will_reset_to(0)
@@ -167,7 +168,7 @@ class Drivetrain(Sendable):
 
     def drive(self, vY: float, omega: float):
         self.chassis_speeds = ChassisSpeeds(
-            vY * self.top_speed, 0.0, omega * self.top_omega
+            vY * self.speed_mult, 0.0, omega * self.omega_mult
         )
         self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
 

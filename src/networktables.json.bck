@@ -1,5 +1,37 @@
 [
   {
+    "name": "/Preferences/omega_mult",
+    "type": "double",
+    "value": 0.01,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/speed_mult",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/intake_mult",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/chute_sped",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
     "name": "/Preferences/top_speed",
     "type": "double",
     "value": 4.0,
@@ -170,7 +202,7 @@
   {
     "name": "/Preferences/arm_kP",
     "type": "double",
-    "value": 0.15,
+    "value": 0.2,
     "properties": {
       "persistent": true
     }
@@ -226,7 +258,7 @@
   {
     "name": "/Preferences/arm_kMaxV",
     "type": "double",
-    "value": 150.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -234,7 +266,7 @@
   {
     "name": "/Preferences/arm_kMaxA",
     "type": "double",
-    "value": 500.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }

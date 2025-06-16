@@ -80,18 +80,19 @@ class PhysicsEngine:
             robot.arm_gear_ratio,
             0.1,  # gross estimate
             0.2,  # estimate
-            -0.52,
+            0.87,
             1.57,
-            True,
+            False,
             1.57,
             [0, 0],
         )
         self.arm_encoder_sim = SparkAbsoluteEncoderSim(robot.right_front_motor)
+        self.arm_encoder_sim.setPosition(0.0)
         self.arm_motor_sim = FalconSim(robot.arm_motor, 0.1, robot.arm_gear_ratio)
 
         # Mechanism2d Visualization for Arm
         self.arm_sim_vis = Mechanism2d(20, 50)
-        self.arm_root = self.arm_sim_vis.getRoot("Arm Root", 10, 0)
+        self.arm_root = self.arm_sim_vis.getRoot("Arm Root", 10, 1)
         self.arm_ligament = self.arm_root.appendLigament(
             "Arm", 10, 0, color=Color8Bit(0, 150, 0)
         )
@@ -130,7 +131,7 @@ class PhysicsEngine:
 
         self.arm_sim.setInput(0, self.arm_motor_sim.getSetpoint())
         self.arm_sim.update(tm_diff)
-        self.arm_encoder_sim.setPosition(self.arm_sim.getAngleDegrees())
+        self.arm_encoder_sim.setPosition((90 - self.arm_sim.getAngleDegrees()) / 360.0)
 
         self.arm_ligament.setAngle(self.arm_sim.getAngleDegrees())
 

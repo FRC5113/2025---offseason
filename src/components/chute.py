@@ -12,16 +12,16 @@ from wpimath import units
 class Chute:
     motor: TalonSRX
 
-    voltage = will_reset_to(0)
+    speed = will_reset_to(0)
     chute_sped = SmartPreference(1)
 
     def setup(self):
         self.motor.setNeutralMode(NeutralMode.Brake)
 
     def request_speed(self, speed):
-        self.voltage = speed
+        self.speed = speed * self.chute_sped
 
     def execute(self):
         self.motor.set(
-            TalonSRXControlMode.PercentOutput, self.voltage * self.chute_sped
+            TalonSRXControlMode.PercentOutput, self.speed 
         )

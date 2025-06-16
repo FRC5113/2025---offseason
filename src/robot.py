@@ -13,6 +13,7 @@ from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
 from components.odometry import Odometry
 from components.chute import Chute
+from components.arm_control import ArmController
 
 from lemonlib import fms_feedback, LemonCamera
 from lemonlib.util import get_file
@@ -21,13 +22,14 @@ from robotpy_apriltag import AprilTagFieldLayout
 
 
 class MyRobot(LemonRobot):
+    arm_controller: ArmController
+
     drivetrain: Drivetrain
     arm: Arm
     odometry: Odometry
     chute: Chute
 
-    intake_speed = SmartPreference(1)
-
+    
     def createObjects(self):
         """
         DRIVETRAIN
@@ -112,9 +114,9 @@ class MyRobot(LemonRobot):
                 "kI": 0.0,
                 "kD": 0.0,
                 "kS": 0.0,
-                "kV": 0.0,
-                "kA": 0.0,
-                "kG": 0.0,
+                "kV": 1.31,
+                "kA": 0.06,
+                "kG": 1.19,
                 "kMaxV": 150.0,
                 "kMaxA": 500.0,
             },
@@ -146,6 +148,8 @@ class MyRobot(LemonRobot):
         SmartDashboard.putData("Field", self.field)
         self.mass = 100
         self.moi = 6.41
+    def enabledperiodic(self):
+        self.arm_controller.engage()
 
     def teleopInit(self):
         self.primaryController = LemonInput(0)
@@ -157,19 +161,13 @@ class MyRobot(LemonRobot):
             applyDeadband(self.primaryController.getRightX(), 0.1),
         )
 
-        # if self.secondaryController.getBButton():
-        #     self.arm.set_arm_speed(5)
         if self.secondaryController.getAButton():
-            self.arm.set_target_angle(ArmAngle.UP)
-            self.arm.set_intake_speed(1 * self.intake_speed)
-        elif self.secondaryController.getBButton():
-            self.arm.set_target_angle(ArmAngle.INTAKE)
-            self.arm.set_intake_speed(-1 * self.intake_speed)
+            self.arm_controller.request_intake()
+        if self.secondaryController.getBButton():
+            self.arm_controller.request_shoot()
 
-        if self.secondaryController.getLeftTriggerAxis() > 0.1:
-            self.chute.request_speed(self.secondaryController.getLeftTriggerAxis())
-        if self.secondaryController.getRightTriggerAxis() > 0.1:
-            self.chute.request_speed(-self.secondaryController.getRightTriggerAxis())
+        if self.secondaryController.getYButton():
+            self.chute.request_speed(1.0)
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()
