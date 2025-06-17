@@ -16,7 +16,7 @@ from components.chute import Chute
 from components.arm_control import ArmController
 
 from lemonlib import fms_feedback, LemonCamera
-from lemonlib.util import get_file
+from lemonlib.util import get_file, AlertManager, AlertType,start_remote_layout
 from autonomous.auto_base import AutoBase
 from robotpy_apriltag import AprilTagFieldLayout
 
@@ -29,7 +29,6 @@ class MyRobot(LemonRobot):
     odometry: Odometry
     chute: Chute
 
-    
     def createObjects(self):
         """
         DRIVETRAIN
@@ -148,6 +147,8 @@ class MyRobot(LemonRobot):
         SmartDashboard.putData("Field", self.field)
         self.mass = 100
         self.moi = 6.41
+        start_remote_layout()
+
     def enabledperiodic(self):
         self.arm_controller.engage()
 
@@ -180,3 +181,9 @@ class MyRobot(LemonRobot):
         if isinstance(selected_auto, AutoBase):
             return selected_auto.current_state
         return "No Auto Selected"
+
+
+if __name__ == "__main__":
+    from wpilib import run
+
+    run(MyRobot)

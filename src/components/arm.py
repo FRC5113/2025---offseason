@@ -5,7 +5,7 @@ from phoenix6.signals import NeutralModeValue
 from magicbot import will_reset_to
 from rev import SparkAbsoluteEncoder
 import enum
-from lemonlib.smart import SmartProfile,SmartPreference
+from lemonlib.smart import SmartProfile, SmartPreference
 from lemonlib import fms_feedback
 from lemonlib.util import AlertManager, Alert, AlertType
 from wpimath import units
@@ -40,7 +40,6 @@ class Arm:
         self.motor_configs = TalonFXConfiguration()
         self.motor_configs.motor_output.neutral_mode = NeutralModeValue.BRAKE
         self.motor.configurator.apply(self.motor_configs)
-        
 
     def on_enable(self):
         self.controller = self.profile.create_arm_controller("arm")
@@ -51,7 +50,7 @@ class Arm:
         """Return the angle of the hinge normalized to [-180,180].
         An angle of 0 refers to the claw in the up/stowed position.
         """
-        angle = (self.encoder.getPosition() * 360)
+        angle = self.encoder.getPosition() * 360
         if angle > 180:
             angle -= 360
         return 90 - angle
@@ -60,7 +59,7 @@ class Arm:
         if abs(self.get_angle - angle) < self.tolerance:
             return True
         return False
-    
+
     def at_setpoint(self):
         if abs(self.get_angle() - self.target_angle) < self.tolerance:
             return True
@@ -93,11 +92,12 @@ class Arm:
             self.motor.configurator.apply(self.motor_configs)
             self.is_coast = False
             self.is_brake = True
-        
 
     def execute(self):
         if not self.manual_control:
-            self.arm_speed = self.controller.calculate(self.get_angle(), self.target_angle)
+            self.arm_speed = self.controller.calculate(
+                self.get_angle(), self.target_angle
+            )
         if self.get_angle() < ArmAngle.SAFEEND.value and self.arm_speed > 0.0:
             self.arm_speed = 0
 

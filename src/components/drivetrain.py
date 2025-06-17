@@ -41,7 +41,6 @@ class Drivetrain(Sendable):
     translation_profile: SmartProfile
     rotation_profile: SmartProfile
 
-
     omega_mult = SmartPreference(1.0)
     speed_mult = SmartPreference(1.0)
     wheel_speeds = DifferentialDriveWheelSpeeds(0, 0)

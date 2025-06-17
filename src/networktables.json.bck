@@ -2,7 +2,7 @@
   {
     "name": "/Preferences/omega_mult",
     "type": "double",
-    "value": 0.01,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }

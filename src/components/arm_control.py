@@ -24,7 +24,7 @@ class ArmController(StateMachine):
     def setup(self):
         self.engage()
 
-    def request_angle(self,angle):
+    def request_angle(self, angle):
         self.arm_setpoint = angle
 
     def request_intake(self):
@@ -32,7 +32,6 @@ class ArmController(StateMachine):
 
     def request_shoot(self):
         self.shoot_request = True
-
 
     @state(first=True)
     def standby(self):
@@ -42,7 +41,7 @@ class ArmController(StateMachine):
             self.arm.set_arm_speed(1)
             self.next_state("intake_fall")
         if not self.arm.at_setpoint():
-                self.next_state("positioning_arm")
+            self.next_state("positioning_arm")
 
     @state
     def positioning_arm(self):
@@ -71,4 +70,3 @@ class ArmController(StateMachine):
     @state
     def arm_failsafe(self):
         self.arm.request_brake()
-
