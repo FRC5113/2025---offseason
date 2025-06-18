@@ -12,10 +12,11 @@ from wpimath import units
 
 
 class ArmAngle(enum.IntEnum):
-    UP = 90
-    DOWN = 42
-    INTAKE = 45
-    SAFEEND = 40
+    UP = 88
+    DOWN = 43
+    INTAKE = 55
+    SAFEEND = 38
+    SAFEBEGIN = 90
 
 
 class Arm:
@@ -26,7 +27,7 @@ class Arm:
     tolerance: units.degrees
 
     intake_speed = will_reset_to(0)
-    arm_speed = 90.0
+    arm_speed = will_reset_to(0)
     target_angle = will_reset_to(ArmAngle.UP.value)
     manual_control = will_reset_to(False)
     set_coast = will_reset_to(True)
@@ -72,9 +73,9 @@ class Arm:
     def set_intake_speed(self, intake_speed):
         self.intake_speed = intake_speed * self.intake_mult
 
-    def set_arm_speed(self, speed):
+    def set_arm_speed(self, voltage):
         self.manual_control = True
-        self.arm_speed = speed
+        self.arm_speed = voltage
 
     def set_target_angle(self, angle: units.degrees):
         self.target_angle = angle
@@ -95,10 +96,12 @@ class Arm:
 
     def execute(self):
         if not self.manual_control:
-            self.arm_speed = self.controller.calculate(
+            test = self.controller.calculate(
                 self.get_angle(), self.target_angle
             )
-        if self.get_angle() < ArmAngle.SAFEEND.value and self.arm_speed > 0.0:
+        if (self.get_angle() < ArmAngle.SAFEEND.value) and (self.arm_speed > 0.0):
+            self.arm_speed = 0
+        elif (self.get_angle() > ArmAngle.SAFEBEGIN.value) and (self.arm_speed < 0.0):
             self.arm_speed = 0
 
         self.motor.setVoltage(self.arm_speed)

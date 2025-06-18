@@ -52,7 +52,6 @@ class Drivetrain(Sendable):
     left_voltage = will_reset_to(0)
     right_voltage = will_reset_to(0)
 
-    stopped = will_reset_to(True)
 
     wheel_speeds = DifferentialDriveWheelSpeeds(0, 0)
     chassis_speeds = ChassisSpeeds(0, 0, 0)
@@ -105,6 +104,7 @@ class Drivetrain(Sendable):
         )
 
         self.kinematics = DifferentialDriveKinematics(self.track_width)
+        self.diff = DifferentialDrive(self.left_front_motor,self.right_front_motor)
 
         self.odometry = DifferentialDrivePoseEstimator(
             self.kinematics,
@@ -135,16 +135,9 @@ class Drivetrain(Sendable):
         )
 
 
-    def on_disable(self):
-        self.stopped = True
-
     def drive(self, vY: float, omega: float):
-        self.chassis_speeds = ChassisSpeeds(
-            vY * self.speed_mult, 0.0, omega * self.omega_mult
-        )
-        self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
 
-        self.stopped = False
+        self.wheel_speeds = self.diff.arcadeDriveIK(vY,omega)
 
     def drive_sample(self, sample: DifferentialSample):
         pose = self.odometry.getEstimatedPosition()
@@ -158,8 +151,7 @@ class Drivetrain(Sendable):
             ff.vx,
             ff.omega
         )
-        self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
-        self.stopped = False
+        self.wheel_speeds = self.diff.arcadeDriveIK(self.chassis_speeds.vy,self.chassis_speeds.omega)
 
     def get_velocity(self):
 
@@ -178,7 +170,6 @@ class Drivetrain(Sendable):
     def initSendable(self, builder: SendableBuilder) -> None:
         builder.setSmartDashboardType("DifferentialDrive")
         builder.setActuator(True)
-        builder.setSafeState(self.on_disable)
         builder.addDoubleProperty(
             "Left Motor Speed",
             lambda: self.left_front_motor.get(),
@@ -191,34 +182,35 @@ class Drivetrain(Sendable):
         )
 
     def execute(self):
-        self.left_voltage = self.left_controller.calculate(
-            (
-                (self.left_drive_encoder.getVelocity() / 60.0)
-                / self.gear_ratio
-                * self.wheel_radius
-                * math.tau
-            ),
-            self.wheel_speeds.left,
-        )
-        self.right_voltage = self.right_controller.calculate(
-            (
-                (self.right_drive_encoder.getVelocity() / 60.0)
-                / self.gear_ratio
-                * self.wheel_radius
-                * math.tau
-            ),
-            self.wheel_speeds.right,
-        )
-        if self.stopped:
-            self.left_voltage = 0
-            self.right_voltage = 0
-            self.left_front_motor.stopMotor()
-            self.right_front_motor.stopMotor()
-            return
-        else:
-            self.left_front_motor.setVoltage(self.left_voltage)
+        # self.left_voltage = self.left_controller.calculate(
+        #     (
+        #         (self.left_drive_encoder.getVelocity() / 60.0)
+        #         / self.gear_ratio
+        #         * self.wheel_radius
+        #         * math.tau
+        #     ),
+        #     self.wheel_speeds.left,
+        # )
+        # self.right_voltage = self.right_controller.calculate(
+        #     (
+        #         (self.right_drive_encoder.getVelocity() / 60.0)
+        #         / self.gear_ratio
+        #         * self.wheel_radius
+        #         * math.tau
+        #     ),
+        #     self.wheel_speeds.right,
+        # )
+        # if self.stopped:
+        #     self.left_voltage = 0
+        #     self.right_voltage = 0
+        #     self.left_front_motor.stopMotor()
+        #     self.right_front_motor.stopMotor()
+        #     return
+        # else:
+        self.left_front_motor.set(self.wheel_speeds.left)
 
-            self.right_front_motor.setVoltage(self.right_voltage)
+        self.right_front_motor.set(self.wheel_speeds.right)
+        self.diff.feed()
 
         self.odometry.update(
             self.navx.getRotation2d(),

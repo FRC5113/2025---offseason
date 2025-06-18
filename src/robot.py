@@ -13,7 +13,7 @@ from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
 from components.odometry import Odometry
 from components.chute import Chute
-from components.arm_control import ArmController
+# from components.arm_control import ArmController
 
 from lemonlib import fms_feedback, LemonCamera
 from lemonlib.util import get_file, AlertManager, AlertType, start_remote_layout
@@ -22,7 +22,7 @@ from robotpy_apriltag import AprilTagFieldLayout
 
 
 class MyRobot(LemonRobot):
-    arm_controller: ArmController
+    # arm_controller: ArmController
 
     drivetrain: Drivetrain
     arm: Arm
@@ -92,7 +92,7 @@ class MyRobot(LemonRobot):
         self.arm_motor = TalonFX(21)
         self.arm_intake_motor = TalonSRX(22)
         self.arm_intake_motor.setNeutralMode(NeutralMode.Brake)
-        self.arm_gear_ratio = 73
+        self.arm_gear_ratio = 30
         self.arm_encoder = self.right_front_motor.getAbsoluteEncoder()
 
         self.arm_tolerance = 3.0
@@ -139,9 +139,12 @@ class MyRobot(LemonRobot):
         self.mass = 100
         self.moi = 6.41
         start_remote_layout()
+        self.alert_man = AlertManager(self.logger)
 
-    def enabledperiodic(self):
-        self.arm_controller.engage()
+        SmartDashboard.putData(self.alert_man)
+
+    # def enabledperiodic(self):
+    #     self.arm_controller.engage()
 
     def teleopInit(self):
         self.primaryController = LemonInput(0)
@@ -150,16 +153,21 @@ class MyRobot(LemonRobot):
     def teleopPeriodic(self):
         self.drivetrain.drive(
             applyDeadband(self.primaryController.getLeftY(), 0.1),
-            applyDeadband(self.primaryController.getRightX(), 0.1),
+            applyDeadband(-self.primaryController.getRightX(), 0.1),
         )
 
-        if self.secondaryController.getAButton():
-            self.arm_controller.request_intake()
-        if self.secondaryController.getBButton():
-            self.arm_controller.request_shoot()
+        if self.secondaryController.getLeftBumper():
+            self.arm.set_arm_speed(-10.0)
+        if self.secondaryController.getRightBumper():
+            self.arm.set_arm_speed(10.0)
 
-        if self.secondaryController.getYButton():
-            self.chute.request_speed(1.0)
+        if self.secondaryController.getLeftTriggerAxis() > 0.03:
+            self.arm.set_intake_speed(self.secondaryController.getLeftTriggerAxis())
+        if self.secondaryController.getRightTriggerAxis() > 0.03:
+            self.arm.set_intake_speed(-self.secondaryController.getRightTriggerAxis())
+
+        if self.secondaryController.getAButton():
+            self.chute.request_speed(-1.0)
 
     def _display_auto_trajectory(self) -> None:
         selected_auto = self._automodes.chooser.getSelected()
