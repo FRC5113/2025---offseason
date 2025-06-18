@@ -13,7 +13,6 @@ from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
 from components.odometry import Odometry
 from components.chute import Chute
-# from components.arm_control import ArmController
 
 from lemonlib import fms_feedback, LemonCamera
 from lemonlib.util import get_file, AlertManager, AlertType, start_remote_layout
@@ -22,7 +21,6 @@ from robotpy_apriltag import AprilTagFieldLayout
 
 
 class MyRobot(LemonRobot):
-    # arm_controller: ArmController
 
     drivetrain: Drivetrain
     arm: Arm
@@ -71,10 +69,21 @@ class MyRobot(LemonRobot):
             not self.low_bandwidth,
         )
 
-        self.drivetrain_ltv_profile = SmartProfile(
-            "Drivetrain LTV",
+        self.translation_profile = SmartProfile(
+            "Translation",
             {
-                "kMaxV": 5.83,
+                "kP": 1.0,
+                "kI": 0.0,
+                "kD": 0.0,
+            },
+            not self.low_bandwidth,
+        )
+        self.rotation_profile = SmartProfile(
+            "Rotation",
+            {
+                "kP": 1.0,
+                "kI": 0.0,
+                "kD": 0.0,
             },
             not self.low_bandwidth,
         )
@@ -167,6 +176,16 @@ class MyRobot(LemonRobot):
             self.arm.set_intake_speed(-self.secondaryController.getRightTriggerAxis())
 
         if self.secondaryController.getAButton():
+            self.arm.set_target_angle(ArmAngle.UP.value)
+            if self.arm.at_setpoint():
+                self.arm.set_intake_speed(1.0)
+        elif self.secondaryController.getBButton():
+            self.arm.set_target_angle(ArmAngle.INTAKE.value)
+            if self.arm.at_setpoint():
+                self.arm.set_intake_speed(-1.0)
+        
+
+        if self.secondaryController.getYButton():
             self.chute.request_speed(-1.0)
 
     def _display_auto_trajectory(self) -> None:

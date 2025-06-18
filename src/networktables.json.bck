@@ -1,6 +1,6 @@
 [
   {
-    "name": "/Preferences/omega_mult",
+    "name": "/Preferences/max_Vx",
     "type": "double",
     "value": 1.0,
     "properties": {
@@ -8,9 +8,9 @@
     }
   },
   {
-    "name": "/Preferences/speed_mult",
+    "name": "/Preferences/max_omega",
     "type": "double",
-    "value": 1.0,
+    "value": 25.0,
     "properties": {
       "persistent": true
     }
@@ -25,6 +25,22 @@
   },
   {
     "name": "/Preferences/chute_sped",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/omega_mult",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/speed_mult",
     "type": "double",
     "value": 1.0,
     "properties": {
@@ -347,6 +363,54 @@
     "name": "/Preferences/Drivetrain LTV_kMaxV",
     "type": "double",
     "value": 5.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Translation_kP",
+    "type": "double",
+    "value": 0.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Translation_kI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Translation_kD",
+    "type": "double",
+    "value": 5.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Rotation_kP",
+    "type": "double",
+    "value": 0.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Rotation_kI",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Rotation_kD",
+    "type": "double",
+    "value": 1.0,
     "properties": {
       "persistent": true
     }

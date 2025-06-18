@@ -8,12 +8,13 @@ from wpimath.kinematics import (
 )
 from wpimath import units
 from lemonlib.smart import SmartProfile, SmartPreference
-from lemonlib import LemonCamera
+from lemonlib import LemonCamera,fms_feedback
 import math
 from choreo.trajectory import DifferentialSample
 from wpiutil import Sendable, SendableBuilder
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.estimator import DifferentialDrivePoseEstimator
+from wpimath.controller import LTVDifferentialDriveController
 from wpimath.system.plant import LinearSystemId
 from wpilib import Field2d
 from navx import AHRS
@@ -40,14 +41,12 @@ class Drivetrain(Sendable):
     gear_ratio: float
     wheel_radius: units.meters
     loop_time: units.seconds = 0.02
+    
+    translation_profile: SmartProfile
+    rotation_profile: SmartProfile
 
-    right_profile: SmartProfile
-    left_profile: SmartProfile
-
-    ltv_profile: SmartProfile
-
-    omega_mult = SmartPreference(1.0)
-    speed_mult = SmartPreference(1.0)
+    max_Vx = SmartPreference(1.0)
+    max_omega = SmartPreference(1.0)
 
     left_voltage = will_reset_to(0)
     right_voltage = will_reset_to(0)
@@ -116,23 +115,6 @@ class Drivetrain(Sendable):
 
         SmartDashboard.putData("Drivetrain", self)
 
-    def on_enable(self):
-        self.right_controller = self.right_profile.create_flywheel_controller("Right")
-        self.right_controller.setTolerance(0.01)
-        self.left_controller = self.left_profile.create_flywheel_controller("Left")
-        self.left_controller.setTolerance(0.01)
-
-        self.ltv_controller = self.ltv_profile.create_ltv_unicycle_controller(
-            LinearSystemId.identifyDrivetrainSystem(
-                self.kv_linear,
-                self.ka_linear,
-                self.kv_angular,
-                self.ka_angular,
-                self.track_width,
-            ),
-            self.track_width,
-            self.loop_time,
-        )
 
 
     def drive(self, vY: float, omega: float):
@@ -142,19 +124,8 @@ class Drivetrain(Sendable):
     def drive_sample(self, sample: DifferentialSample):
         pose = self.odometry.getEstimatedPosition()
 
-        ff = sample.get_chassis_speeds()
-
-        # Generate the next speeds for the robot
-        self.chassis_speeds = self.ltv_controller.calculate(
-            pose,
-            sample.get_pose(),
-            ff.vx,
-            ff.omega
-        )
-        self.wheel_speeds = self.diff.arcadeDriveIK(self.chassis_speeds.vy,self.chassis_speeds.omega)
 
     def get_velocity(self):
-
         return self.chassis_speeds
 
     def get_pose(self):
@@ -182,31 +153,6 @@ class Drivetrain(Sendable):
         )
 
     def execute(self):
-        # self.left_voltage = self.left_controller.calculate(
-        #     (
-        #         (self.left_drive_encoder.getVelocity() / 60.0)
-        #         / self.gear_ratio
-        #         * self.wheel_radius
-        #         * math.tau
-        #     ),
-        #     self.wheel_speeds.left,
-        # )
-        # self.right_voltage = self.right_controller.calculate(
-        #     (
-        #         (self.right_drive_encoder.getVelocity() / 60.0)
-        #         / self.gear_ratio
-        #         * self.wheel_radius
-        #         * math.tau
-        #     ),
-        #     self.wheel_speeds.right,
-        # )
-        # if self.stopped:
-        #     self.left_voltage = 0
-        #     self.right_voltage = 0
-        #     self.left_front_motor.stopMotor()
-        #     self.right_front_motor.stopMotor()
-        #     return
-        # else:
         self.left_front_motor.set(self.wheel_speeds.left)
 
         self.right_front_motor.set(self.wheel_speeds.right)

@@ -15,8 +15,8 @@ class ArmAngle(enum.IntEnum):
     UP = 88
     DOWN = 43
     INTAKE = 55
-    SAFEEND = 38
-    SAFEBEGIN = 90
+    SAFEBOTTOM = 38
+    SAFETOP = 90
 
 
 class Arm:
@@ -30,16 +30,13 @@ class Arm:
     arm_speed = will_reset_to(0)
     target_angle = will_reset_to(ArmAngle.UP.value)
     manual_control = will_reset_to(False)
-    set_coast = will_reset_to(True)
 
     intake_mult = SmartPreference(1)
-
-    is_coast = False
-    is_brake = True
+    taut_voltage = SmartPreference(0.05)
 
     def setup(self):
         self.motor_configs = TalonFXConfiguration()
-        self.motor_configs.motor_output.neutral_mode = NeutralModeValue.BRAKE
+        self.motor_configs.motor_output.neutral_mode = NeutralModeValue.COAST
         self.motor.configurator.apply(self.motor_configs)
 
     def on_enable(self):
@@ -80,29 +77,24 @@ class Arm:
     def set_target_angle(self, angle: units.degrees):
         self.target_angle = angle
 
-    def request_coast(self):
-        if not self.is_coast:
-            self.motor_configs.motor_output.neutral_mode = NeutralModeValue.BRAKE
-            self.motor.configurator.apply(self.motor_configs)
-            self.is_coast = True
-            self.is_brake = False
-
-    def request_brake(self):
-        if not self.is_brake:
-            self.motor_configs.motor_output.neutral_mode = NeutralModeValue.COAST
-            self.motor.configurator.apply(self.motor_configs)
-            self.is_coast = False
-            self.is_brake = True
 
     def execute(self):
+        current_angle = self.get_angle()
+
         if not self.manual_control:
-            test = self.controller.calculate(
-                self.get_angle(), self.target_angle
-            )
-        if (self.get_angle() < ArmAngle.SAFEEND.value) and (self.arm_speed > 0.0):
+            # Only calculate full PID output if below setpoint (needs to pull up)
+            if current_angle < self.target_angle:
+                self.arm_speed = self.controller.calculate(current_angle, self.target_angle)
+            else:
+                self.arm_speed = self.taut_voltage
+
+        if (self.get_angle() < ArmAngle.SAFEBOTTOM.value) and (self.arm_speed < 0.0):
             self.arm_speed = 0
-        elif (self.get_angle() > ArmAngle.SAFEBEGIN.value) and (self.arm_speed < 0.0):
+        elif (self.get_angle() > ArmAngle.SAFETOP.value) and (self.arm_speed > 0.0):
             self.arm_speed = 0
+
+        if self.arm_speed < 0 and current_angle >= self.target_angle:
+            self.arm_speed = 0  # Prevent wrapping rope backward
 
         self.motor.setVoltage(self.arm_speed)
         self.intake_motor.set(TalonSRXControlMode.PercentOutput, self.intake_speed)
