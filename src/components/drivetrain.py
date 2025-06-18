@@ -14,6 +14,7 @@ from choreo.trajectory import DifferentialSample
 from wpiutil import Sendable, SendableBuilder
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.estimator import DifferentialDrivePoseEstimator
+from wpimath.system.plant import LinearSystemId
 from wpilib import Field2d
 from navx import AHRS
 from magicbot import will_reset_to
@@ -31,24 +32,30 @@ class Drivetrain(Sendable):
     right_drive_encoder: SparkRelativeEncoder
     left_drive_encoder: SparkRelativeEncoder
 
+    kv_linear: float  
+    ka_linear: float  
+    kv_angular: float  
+    ka_angular: float
     track_width: units.meters
     gear_ratio: float
     wheel_radius: units.meters
+    loop_time: units.seconds = 0.02
 
     right_profile: SmartProfile
     left_profile: SmartProfile
 
-    translation_profile: SmartProfile
-    rotation_profile: SmartProfile
+    ltv_profile: SmartProfile
 
     omega_mult = SmartPreference(1.0)
     speed_mult = SmartPreference(1.0)
-    wheel_speeds = DifferentialDriveWheelSpeeds(0, 0)
 
     left_voltage = will_reset_to(0)
     right_voltage = will_reset_to(0)
 
     stopped = will_reset_to(True)
+
+    wheel_speeds = DifferentialDriveWheelSpeeds(0, 0)
+    chassis_speeds = ChassisSpeeds(0, 0, 0)
 
     def __init__(self):
         Sendable.__init__(self)
@@ -99,8 +106,6 @@ class Drivetrain(Sendable):
 
         self.kinematics = DifferentialDriveKinematics(self.track_width)
 
-        self.chassis_speeds = ChassisSpeeds()
-
         self.odometry = DifferentialDrivePoseEstimator(
             self.kinematics,
             self.navx.getRotation2d(),
@@ -112,57 +117,25 @@ class Drivetrain(Sendable):
         SmartDashboard.putData("Drivetrain", self)
 
     def on_enable(self):
-        # self.right_back_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
-        # self.left_back_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
-        # self.left_front_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
-        # self.right_front_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kBrake),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
         self.right_controller = self.right_profile.create_flywheel_controller("Right")
+        self.right_controller.setTolerance(0.01)
         self.left_controller = self.left_profile.create_flywheel_controller("Left")
+        self.left_controller.setTolerance(0.01)
 
-        self.translation_controller = self.translation_profile.create_pid_controller(
-            "Translation"
+        self.ltv_controller = self.ltv_profile.create_ltv_unicycle_controller(
+            LinearSystemId.identifyDrivetrainSystem(
+                self.kv_linear,
+                self.ka_linear,
+                self.kv_angular,
+                self.ka_angular,
+                self.track_width,
+            ),
+            self.track_width,
+            self.loop_time,
         )
-        self.rotation_controller = self.rotation_profile.create_pid_controller(
-            "Rotation"
-        )
+
 
     def on_disable(self):
-        # self.right_back_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
-        # self.left_back_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
-        # self.left_front_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
-        # self.right_front_motor.configure(
-        #     SparkMaxConfig().setIdleMode(SparkMaxConfig.IdleMode.kCoast),
-        #     SparkMax.ResetMode.kResetSafeParameters,
-        #     SparkMax.PersistMode.kPersistParameters,
-        # )
         self.stopped = True
 
     def drive(self, vY: float, omega: float):
@@ -174,25 +147,18 @@ class Drivetrain(Sendable):
         self.stopped = False
 
     def drive_sample(self, sample: DifferentialSample):
-        speeds = sample.get_chassis_speeds()
-        self.chassis_speeds = ChassisSpeeds(
-            speeds.vx
-            + self.translation_controller.calculate(
-                self.odometry.getEstimatedPosition().X(), sample.x
-            ),
-            0.0,
-            speeds.omega
-            + self.rotation_controller.calculate(
-                (
-                    self.odometry.getEstimatedPosition().rotation().radians()
-                    + 2 * math.pi
-                )
-                % (2 * math.pi),
-                sample.heading,
-            ),
+        pose = self.odometry.getEstimatedPosition()
+
+        ff = sample.get_chassis_speeds()
+
+        # Generate the next speeds for the robot
+        self.chassis_speeds = self.ltv_controller.calculate(
+            pose,
+            sample.get_pose(),
+            ff.vx,
+            ff.omega
         )
         self.wheel_speeds = self.kinematics.toWheelSpeeds(self.chassis_speeds)
-        # self.wheel_speeds.desaturate(self.top_speed)
         self.stopped = False
 
     def get_velocity(self):
@@ -227,7 +193,7 @@ class Drivetrain(Sendable):
     def execute(self):
         self.left_voltage = self.left_controller.calculate(
             (
-                self.left_drive_encoder.getVelocity()
+                (self.left_drive_encoder.getVelocity() / 60.0)
                 / self.gear_ratio
                 * self.wheel_radius
                 * math.tau
@@ -236,7 +202,7 @@ class Drivetrain(Sendable):
         )
         self.right_voltage = self.right_controller.calculate(
             (
-                self.right_drive_encoder.getVelocity()
+                (self.right_drive_encoder.getVelocity() / 60.0)
                 / self.gear_ratio
                 * self.wheel_radius
                 * math.tau

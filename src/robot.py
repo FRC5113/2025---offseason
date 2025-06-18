@@ -16,7 +16,7 @@ from components.chute import Chute
 from components.arm_control import ArmController
 
 from lemonlib import fms_feedback, LemonCamera
-from lemonlib.util import get_file, AlertManager, AlertType,start_remote_layout
+from lemonlib.util import get_file, AlertManager, AlertType, start_remote_layout
 from autonomous.auto_base import AutoBase
 from robotpy_apriltag import AprilTagFieldLayout
 
@@ -44,6 +44,7 @@ class MyRobot(LemonRobot):
         self.track_width: units.meters = 0.6
         self.gear_ratio = 8.45
         self.wheel_radius: units.meters = 0.0762
+        
 
         self.drivetrain_left_profile = SmartProfile(
             "left",
@@ -70,29 +71,19 @@ class MyRobot(LemonRobot):
             not self.low_bandwidth,
         )
 
-        self.drivetrain_translation_profile = SmartProfile(
-            "translation",
+        self.drivetrain_ltv_profile = SmartProfile(
+            "Drivetrain LTV",
             {
-                "kP": 1.0,
-                "kI": 0.0,
-                "kD": 0.0,
-            },
-            not self.low_bandwidth,
-        )
-        self.drivetrain_rotation_profile = SmartProfile(
-            "rotation",
-            {
-                "kP": 1.0,
-                "kI": 0.0,
-                "kD": 0.0,
+                "kMaxV": 5.83,
             },
             not self.low_bandwidth,
         )
 
-        self.kv_linear = 1.98  # Volts per (m/s)
-        self.ka_linear = 0.2  # Volts per (m/s^2)
-        self.kv_angular = 1.5  # Volts per (rad/s)
-        self.ka_angular = 0.3  # Volts per (rad/s^2)
+
+        self.kv_linear = 2.16  # Volts per (m/s)
+        self.ka_linear = 0.57  # Volts per (m/s^2)
+        self.kv_angular = 2.16  # Volts per (rad/s)
+        self.ka_angular = 0.57  # Volts per (rad/s^2)
 
         """
         ARM
@@ -181,9 +172,3 @@ class MyRobot(LemonRobot):
         if isinstance(selected_auto, AutoBase):
             return selected_auto.current_state
         return "No Auto Selected"
-
-
-if __name__ == "__main__":
-    from wpilib import run
-
-    run(MyRobot)

@@ -16,6 +16,7 @@ from lemonlib.util import AlertManager, is_red
 
 from components.drivetrain import Drivetrain
 from components.arm import Arm, ArmAngle
+from components.chute import Chute
 
 
 class AutoBase(AutonomousStateMachine):
@@ -23,6 +24,7 @@ class AutoBase(AutonomousStateMachine):
     arm: Arm
     drivetrain: Drivetrain
     estimated_field: Field2d
+    chute: Chute
 
     DISTANCE_TOLERANCE = 0.1  # metres
     ANGLE_TOLERANCE = math.radians(3)
@@ -110,7 +112,7 @@ class AutoBase(AutonomousStateMachine):
         distance = current_pose.translation().distance(final_pose.translation())
         angle_error = (final_pose.rotation() - current_pose.rotation()).radians()
         velocity = self.drivetrain.get_velocity()
-        speed = math.sqrt(math.pow(velocity.vx, 2.0) + math.pow(velocity.vy, 2.0))
+        speed = math.sqrt(math.pow(velocity.vx, 2.0))
         SmartDashboard.putString("Final Pose", f"{final_pose}")
 
         if (
@@ -132,3 +134,12 @@ class AutoBase(AutonomousStateMachine):
     """
     STATES
     """
+
+    @timed_state(
+        duration=1.0,
+        must_finish=True,
+        next_state="next_step",
+    )
+    def drop_coral(self):
+        """Drop the coral at the current position."""
+        self.chute.request_speed(1.0)

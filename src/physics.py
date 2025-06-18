@@ -103,6 +103,7 @@ class PhysicsEngine:
         self.vision_sim = LemonCameraSim(
             robot.front_camera,
             robot.field_layout,
+            359.0,  # FOV in degrees
         )
 
         self.field = robot.field
